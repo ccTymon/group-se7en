@@ -1,6 +1,8 @@
 package app;
 
+import data_access.FileReviewDataAccessObject;
 import data_access.FileUserDataAccessObject;
+import entity.ReviewFactory;
 import entity.UserFactory;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.loggedin.LoggedInViewModel;
@@ -32,6 +34,7 @@ public class AppBuilder {
     private final JPanel cardPanel = new JPanel();
     private final CardLayout cardLayout = new CardLayout();
     final UserFactory userFactory = new UserFactory();
+    final ReviewFactory reviewFactory = new ReviewFactory();
     final ViewManagerModel viewManagerModel = new ViewManagerModel();
     ViewManager viewManager = new ViewManager(cardPanel, cardLayout, viewManagerModel);
 
@@ -40,6 +43,10 @@ public class AppBuilder {
 
     // DAO version using local file storage
     final FileUserDataAccessObject userDataAccessObject = new FileUserDataAccessObject("users.csv", userFactory);
+
+    // DAO for local review storage
+    final FileReviewDataAccessObject fileReviewDataAccessObject = new FileReviewDataAccessObject(
+            "reviews.json", reviewFactory);
 
     // DAO version using a shared external database
     // final DBUserDataAccessObject userDataAccessObject = new DBUserDataAccessObject(userFactory);
