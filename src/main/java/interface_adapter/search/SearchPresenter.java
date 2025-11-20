@@ -21,6 +21,9 @@ public class SearchPresenter implements SearchOutputBoundary {
         final MovieState movieState = new MovieState();
         movieState.setMovieName(outputData.getMovieName());
         movieState.setMovieRate(outputData.getRate());
+        movieState.setMovieIcon(outputData.getIcon());
+        movieState.setMoviePlot(outputData.getPlot());
+        movieState.setMovieId(outputData.getId());
 
         movieSearchModel.setState(movieState);
         movieSearchModel.firePropertyChange();
