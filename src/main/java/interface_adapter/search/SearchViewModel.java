@@ -7,4 +7,10 @@ public class SearchViewModel extends ViewModel<SearchState> {
         super("search");
         setState(new SearchState());
     }
+
+    public void clear() {
+        SearchState state = this.getState();
+        state.setMoviename("");
+        this.setState(state);
+    }
 }

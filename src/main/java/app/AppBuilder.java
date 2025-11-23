@@ -10,6 +10,7 @@ import interface_adapter.login.LoginViewModel;
 import interface_adapter.search.SearchController;
 import interface_adapter.search.SearchPresenter;
 import interface_adapter.search.SearchViewModel;
+import interface_adapter.showmovie.MovieController;
 import interface_adapter.showmovie.MovieSearchModel;
 import interface_adapter.signup.SignupController;
 import interface_adapter.signup.SignupPresenter;
@@ -42,7 +43,7 @@ public class AppBuilder {
     final FileUserDataAccessObject userDataAccessObject = new FileUserDataAccessObject("users.csv", userFactory);
 
     // DAO version using a shared external database
-    // final DBUserDataAccessObject userDataAccessObject = new DBUserDataAccessObject(userFactory);
+    //final DBUserDataAccessObject userDataAccessObject = new DBUserDataAccessObject(userFactory);
 
     private SignupView signupView;
     private SignupViewModel signupViewModel;
@@ -123,6 +124,15 @@ public class AppBuilder {
 
         SearchController searchController = new SearchController(searchInteractor);
         searchView.setSearchController(searchController);
+        return this;
+    }
+
+    public AppBuilder addMovieUseCase() {
+        MovieController movieController = new MovieController(
+                viewManagerModel,
+                searchViewModel
+        );
+        movieView.setMovieController(movieController);
         return this;
     }
 
