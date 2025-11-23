@@ -25,9 +25,11 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
     private final ImageIcon movieIcon;
     private final JLabel movieLabel;
     private final JTextArea Plot;
-    private final JTextArea comment;
     private JButton backButton;
     private MovieController movieController;
+    private final JButton reviewButton;
+    private final JTextField reviewField = new JTextField(15);
+    private final JTextArea reviewsDisplay = new JTextArea(10, 20);
 
     public MovieView(MovieSearchModel movieSearchModel) {
         this.movieSearchModel = movieSearchModel;
@@ -59,17 +61,31 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
         Plot = new JTextArea();
         infoPanel.add(Plot, BorderLayout.CENTER);
 
-        //JScrollPane scrollPane = new JScrollPane(Plot);
-        //scrollPane.setBorder(BorderFactory.createTitledBorder("Plot Summary:"));
-        //infoPanel.add(scrollPane, BorderLayout.CENTER);
+
+
 
         JPanel user_inputPanel = new JPanel(new BorderLayout());
         user_inputPanel.setLayout(new BoxLayout(user_inputPanel, BoxLayout.Y_AXIS));
+        reviewButton = new JButton("Review");
 
-        comment = new JTextArea();
-        user_inputPanel.add(comment, BorderLayout.WEST);
+        reviewButton.addActionListener(this);
+
+        user_inputPanel.setOpaque(false);
+
+        user_inputPanel.add(reviewField);
+        user_inputPanel.add(reviewButton);
+
+        posterPanel.add(user_inputPanel, BorderLayout.SOUTH);
+
+        JLabel reviewTitle = new JLabel("Reviews");
+        reviewTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        user_inputPanel.add(reviewTitle);
+
+
+        user_inputPanel.add(reviewsDisplay);
 
         infoPanel.add(user_inputPanel, BorderLayout.SOUTH);
+
         posterPanel.add(infoPanel, BorderLayout.CENTER);
 
 
@@ -81,15 +97,27 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
 
         this.add(movieName);
         this.add(posterPanel, BorderLayout.CENTER);
-        //this.add(rating);
-        // this.add(movieLabel);
-        //this.add(Plot);
+
+
         this.add(backButton);
 
     }
     public void actionPerformed(ActionEvent e) {
         if  (e.getSource() == backButton) {
+            movieController.goBack();
 
+        }
+
+        if (e.getSource() == reviewButton) {
+            String text = reviewField.getText().trim();
+
+            if (text.equals("") || text.equals("Write your review...")) {
+                return;
+            }
+
+            reviewsDisplay.append("- " + text + "\n");
+
+            reviewField.setText("");
         }
     }
 
@@ -105,7 +133,6 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
         } catch (Exception e) {
             e.printStackTrace();
         }
-        comment.setText("There are n comment");
 
     }
 
