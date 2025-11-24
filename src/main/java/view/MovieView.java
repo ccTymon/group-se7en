@@ -125,7 +125,7 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
         final MovieState movieState = (MovieState) evt.getNewValue();
         movieName.setText("Movie Name:  " + movieState.getMovieName());
         rating.setText("Rating:  \n" + movieState.getMovieRate());
-        Plot.setText("Plot: \n " +  movieState.getMoviePlot());
+        Plot.setText("Plot:\n" +  movieState.getMoviePlot());
         try {
             URL imageUrl = new URL(movieState.getMovieIcon());
             BufferedImage img = ImageIO.read(imageUrl);
