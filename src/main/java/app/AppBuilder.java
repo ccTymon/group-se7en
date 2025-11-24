@@ -1,5 +1,6 @@
 package app;
 
+import data_access.FileMovieDataAccessObject;
 import data_access.FileReviewDataAccessObject;
 import data_access.FileUserDataAccessObject;
 import entity.ReviewFactory;
@@ -48,6 +49,8 @@ public class AppBuilder {
     // DAO for local review storage
     final FileReviewDataAccessObject fileReviewDataAccessObject = new FileReviewDataAccessObject(
             "reviews.json", reviewFactory);
+
+    final FileMovieDataAccessObject fileMovieDataAccessObject = new FileMovieDataAccessObject("movieDB.json");
 
     // DAO version using a shared external database
     //final DBUserDataAccessObject userDataAccessObject = new DBUserDataAccessObject(userFactory);
