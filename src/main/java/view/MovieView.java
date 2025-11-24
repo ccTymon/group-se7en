@@ -26,6 +26,7 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
     private final JLabel movieLabel;
     private final JTextArea Plot;
     private JButton backButton;
+    private JButton saveButton;
     private MovieController movieController;
     private final JButton reviewButton;
     private final JTextField reviewField = new JTextField(15);
@@ -67,14 +68,21 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
         JPanel user_inputPanel = new JPanel(new BorderLayout());
         user_inputPanel.setLayout(new BoxLayout(user_inputPanel, BoxLayout.Y_AXIS));
         reviewButton = new JButton("Review");
-
         reviewButton.addActionListener(this);
+
+        saveButton = new JButton("Save to watch later");
+        saveButton.addActionListener(this);
 
         user_inputPanel.setOpaque(false);
 
         user_inputPanel.add(reviewField);
-        user_inputPanel.add(reviewButton);
 
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(reviewButton, BorderLayout.WEST);
+        buttonPanel.add(saveButton, BorderLayout.EAST);
+        // user_inputPanel.add(reviewButton);
+        // user_inputPanel.add(saveButton);
+        user_inputPanel.add(buttonPanel);
         posterPanel.add(user_inputPanel, BorderLayout.SOUTH);
 
         JLabel reviewTitle = new JLabel("Reviews");
