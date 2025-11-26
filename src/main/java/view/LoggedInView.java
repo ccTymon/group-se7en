@@ -43,8 +43,9 @@ public class LoggedInView extends JPanel implements ActionListener , PropertyCha
         // if no image shows placeholder
         if (imageIcon.getIconWidth() > 0) {
             next_watch.setIcon(imageIcon);
+            next_watch.setPreferredSize(new Dimension(400, 650));
         } else {
-            next_watch.setText("Clickable Image Placeholder");
+            next_watch.setText("Movie placeholder");
             next_watch.setBorder(BorderFactory.createLineBorder(Color.BLACK));
             next_watch.setPreferredSize(new Dimension(150, 150));
         }
@@ -53,7 +54,7 @@ public class LoggedInView extends JPanel implements ActionListener , PropertyCha
         next_watch.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                System.out.println("Image clicked!");
+                System.out.println("image clicked");
             }
         });
 
