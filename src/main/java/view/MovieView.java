@@ -127,6 +127,10 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
 
             reviewField.setText("");
         }
+
+        if (e.getSource() == saveButton) {
+
+        }
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
