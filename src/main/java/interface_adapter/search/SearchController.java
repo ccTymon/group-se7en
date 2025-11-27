@@ -15,4 +15,8 @@ public class SearchController {
         SearchInputData searchInputData = new SearchInputData(movie);
         searchUseCaseInteractor.execute(searchInputData);
     }
+
+    public void switchToLoggedInView(){
+        searchUseCaseInteractor.switchToLoggedInView();
+    }
 }

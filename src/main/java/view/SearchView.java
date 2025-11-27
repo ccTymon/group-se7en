@@ -19,6 +19,7 @@ public class SearchView extends JPanel implements ActionListener , PropertyChang
 
     private final JButton searchButton;
     private final JTextField searchField = new JTextField(15);
+    private final JButton backButton;
 
     private SearchController searchController;
 
@@ -31,6 +32,7 @@ public class SearchView extends JPanel implements ActionListener , PropertyChang
 
         JPanel movieSearchPanel = new JPanel();
         searchButton = new JButton("Search");
+        backButton = new JButton("Back");
 
         searchButton.addActionListener(this);
 
@@ -58,12 +60,21 @@ public class SearchView extends JPanel implements ActionListener , PropertyChang
             }
         });
 
+
+        backButton.addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent evt) {
+                        searchController.switchToLoggedInView();
+                    }
+                }
+        );
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         movieSearchPanel.add(searchField);
         movieSearchPanel.add(searchButton);
 
         this.add(title);
         this.add(movieSearchPanel);
+        this.add(backButton);
     }
 
     @Override
@@ -73,6 +84,7 @@ public class SearchView extends JPanel implements ActionListener , PropertyChang
             searchController.execute(currentState.getMoviename());
         }
     }
+
 
     public String getViewName() {
         return viewName;

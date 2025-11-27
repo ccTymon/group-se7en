@@ -54,7 +54,6 @@ public class SearchInteractor implements SearchInputBoundary {
             String rateString = rate.toString();
 
             String iconString = jsonObject.getString("Poster");
-
             String Plot = jsonObject.getString("Plot");
             String formattedPlot = Plot.replaceAll("\\.\\s*", ".\n");
             String Id = jsonObject.getString("imdbID");
@@ -65,5 +64,9 @@ public class SearchInteractor implements SearchInputBoundary {
         } catch (Exception e) {
             searchPresenter.prepareFailureView(e.getMessage());
         }
+    }
+
+    public void switchToLoggedInView() {
+        searchPresenter.switchToLoggedInView();
     }
 }

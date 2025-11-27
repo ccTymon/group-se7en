@@ -39,4 +39,9 @@ public class SearchPresenter implements SearchOutputBoundary {
         searchState.setSearchError(error);
         searchViewModel.firePropertyChange();
     }
+
+    public void switchToLoggedInView() {
+        viewManagerModel.setState("logged in");
+        viewManagerModel.firePropertyChange();
+    }
 }
