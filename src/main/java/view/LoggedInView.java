@@ -4,16 +4,21 @@ import interface_adapter.ViewManagerModel;
 import interface_adapter.loggedin.LoggedInViewModel;
 import interface_adapter.loggedin.LoggedinState;
 import interface_adapter.login.LoginState;
+import interface_adapter.search.SearchController;
+import interface_adapter.search.SearchState;
 import interface_adapter.search.SearchViewModel;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.net.URL;
 
 /**
  * The View for when the user is logged into the program.
@@ -25,12 +30,17 @@ public class LoggedInView extends JPanel implements ActionListener , PropertyCha
     private final JLabel next_watch;
     private final ViewManagerModel viewManagerModel;
     private final LoggedInViewModel loggedInViewModel;
+    private final SearchViewModel searchViewModel;
     private JLabel userid;
+    private SearchController searchController;
+    private LoggedinState loggedinState;
 
 
-    public LoggedInView(ViewManagerModel viewManagerModel,  LoggedInViewModel loggedInViewModel) {
+    public LoggedInView(ViewManagerModel viewManagerModel, LoggedInViewModel loggedInViewModel, SearchViewModel searchViewModel) {
         this.viewManagerModel = viewManagerModel;
         this.loggedInViewModel = loggedInViewModel;
+        this.searchViewModel = searchViewModel;
+        this.searchViewModel.addPropertyChangeListener(this);
         loggedInViewModel.addPropertyChangeListener(this);
         userid = new JLabel("Hi");
         userid.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -55,10 +65,19 @@ public class LoggedInView extends JPanel implements ActionListener , PropertyCha
             @Override
             public void mouseClicked(MouseEvent e) {
                 System.out.println("image clicked");
+                // String movieName = loggedinState.getNext_watch();
+                String movieName = "The Shawshank Redemption";
+
+                final SearchState currentState = searchViewModel.getState();
+                currentState.setMoviename(movieName);
+                searchViewModel.setState(currentState);
+
+
+                if (searchController != null) {
+                    searchController.execute(movieName);
+                }
             }
         });
-
-
 
 
         final JPanel buttons = new JPanel();
@@ -69,8 +88,6 @@ public class LoggedInView extends JPanel implements ActionListener , PropertyCha
         searchButton.addActionListener(this);
 
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-
-
 
 
         this.add(userid);
@@ -84,7 +101,6 @@ public class LoggedInView extends JPanel implements ActionListener , PropertyCha
     }
 
 
-
     public String getViewName() {
         return viewName;
     }
@@ -92,6 +108,11 @@ public class LoggedInView extends JPanel implements ActionListener , PropertyCha
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         final LoggedinState state = (LoggedinState) evt.getNewValue();
-            userid.setText("hi" + "  "  + state.getUsername());
+        userid.setText("hi" + "  " + state.getUsername());
+    }
+
+
+    public void setSearchController(SearchController searchController) {
+        this.searchController = searchController;
     }
 }
