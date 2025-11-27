@@ -97,7 +97,8 @@ public class AppBuilder {
 
     public AppBuilder addLoggedInView() {
         loggedInViewModel = new LoggedInViewModel();
-        loggedInView = new LoggedInView(viewManagerModel, loggedInViewModel);
+        SearchViewModel SearchViewModel = new SearchViewModel();
+        loggedInView = new LoggedInView(viewManagerModel, loggedInViewModel, SearchViewModel);
         cardPanel.add(loggedInView, loggedInView.getViewName());
         return this;
     }
@@ -130,7 +131,13 @@ public class AppBuilder {
         final SearchInputBoundary searchInteractor = new SearchInteractor(searchOutputBoundary);
 
         SearchController searchController = new SearchController(searchInteractor);
+
+        // Existing line for SearchView
         searchView.setSearchController(searchController);
+
+        // NEW LINE: Set the controller for LoggedInView as well
+        loggedInView.setSearchController(searchController);
+
         return this;
     }
 

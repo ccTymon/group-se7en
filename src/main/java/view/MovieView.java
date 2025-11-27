@@ -1,5 +1,6 @@
 package view;
 
+import interface_adapter.loggedin.LoggedinState;
 import interface_adapter.showmovie.MovieController;
 import interface_adapter.showmovie.MovieSearchModel;
 import interface_adapter.showmovie.MovieState;
@@ -28,9 +29,12 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
     private JButton backButton;
     private JButton saveButton;
     private MovieController movieController;
+    private LoggedinState loggedinState;
     private final JButton reviewButton;
     private final JTextField reviewField = new JTextField(15);
     private final JTextArea reviewsDisplay = new JTextArea(10, 20);
+    private String next_watch = "";
+    private String next_watch_poster = "";
 
     public MovieView(MovieSearchModel movieSearchModel) {
         this.movieSearchModel = movieSearchModel;
@@ -127,6 +131,11 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
 
             reviewField.setText("");
         }
+
+        if (e.getSource() == saveButton) {
+            loggedinState.setNext_watch(next_watch);
+            loggedinState.setNext_watch_poster(next_watch_poster);
+        }
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
@@ -134,6 +143,8 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
         movieName.setText("Movie Name:  " + movieState.getMovieName());
         rating.setText("Rating:  \n" + movieState.getMovieRate());
         Plot.setText("Plot:\n" +  movieState.getMoviePlot());
+        next_watch = movieState.getMovieName();
+        next_watch_poster = movieState.getMovieIcon();
         try {
             URL imageUrl = new URL(movieState.getMovieIcon());
             BufferedImage img = ImageIO.read(imageUrl);
