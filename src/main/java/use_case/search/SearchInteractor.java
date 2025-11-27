@@ -9,7 +9,8 @@ import org.json.JSONObject;
 public class SearchInteractor implements SearchInputBoundary {
     private final SearchOutputBoundary searchPresenter;
     private static final String API_KEY = "ebcbe61c";
-    private static final String URL = "http://www.omdbapi.com/?apikey=" + API_KEY + "&t=";
+    private static final String TITLE_URL = "http://www.omdbapi.com/?apikey=" + API_KEY + "&t=";
+    private static final String ID_URL = "http://www.omdbapi.com/?apikey=" + API_KEY + "&i=";
     private final OkHttpClient client = new OkHttpClient();
 
     public SearchInteractor(SearchOutputBoundary searchPresenter) {
@@ -23,10 +24,14 @@ public class SearchInteractor implements SearchInputBoundary {
             return;
         }
 
-        Request request = new Request.Builder().url(URL + movie).build();
+        boolean isId = movie.startsWith("tt");
 
+        String url = isId ? ID_URL + movie : TITLE_URL + movie;
+
+        Request request = new Request.Builder().url(url).build();
 
         try (Response response = client.newCall(request).execute()) {
+
             String responseBody = response.body().string();
             JSONObject jsonObject = new JSONObject(responseBody);
 

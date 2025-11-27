@@ -7,6 +7,7 @@ public class User {
 
     private final String name;
     private final String password;
+    private final String nextWatch;
 
     /**
      * Creates a new user with the given non-empty name and non-empty password.
@@ -23,6 +24,7 @@ public class User {
         }
         this.name = name;
         this.password = password;
+        this.nextWatch = "tt0816692";
     }
 
     public String getName() {
@@ -31,6 +33,10 @@ public class User {
 
     public String getPassword() {
         return password;
+    }
+
+    public String getNextWatch() {
+        return nextWatch;
     }
 
 }

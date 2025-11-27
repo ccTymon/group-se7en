@@ -35,19 +35,61 @@ public class LoginView extends JPanel implements ActionListener, PropertyChangeL
 
         this.loginViewModel = loginViewModel;
         this.loginViewModel.addPropertyChangeListener(this);
+        this.setOpaque(true);
+        this.setBackground(new Color(235, 245, 255));
 
         final JLabel title = new JLabel("Login Screen");
+        title.setFont(new Font("Monospaced", Font.BOLD, 22));
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         final LabelTextPanel usernameInfo = new LabelTextPanel(
                 new JLabel("Username"), usernameInputField);
+        usernameInfo.setOpaque(true);
+        usernameInfo.setBackground(new Color(235, 245, 255));
+
+
         final LabelTextPanel passwordInfo = new LabelTextPanel(
                 new JLabel("Password"), passwordInputField);
 
+        passwordInfo.setOpaque(true);
+        passwordInfo.setBackground(new Color(235, 245, 255));
+
         final JPanel buttons = new JPanel();
+        buttons.setOpaque(true);
+        buttons.setBackground(new Color(235, 245, 255));
+
         logIn = new JButton("log in");
+        logIn.setBackground(new Color(100, 149, 237));
+        logIn.setForeground(Color.WHITE);
+        logIn.setOpaque(true);
+        logIn.setBorderPainted(false);
+        logIn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                logIn.setBackground(new Color(120, 170, 255));
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                logIn.setBackground(new Color(100, 149, 237));
+            }
+        });
+
         buttons.add(logIn);
         cancel = new JButton("cancel");
+
+        cancel.setBackground(new Color(100, 149, 237));
+        cancel.setForeground(Color.WHITE);
+        cancel.setOpaque(true);
+        cancel.setBorderPainted(false);
+        cancel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cancel.setBackground(new Color(120, 170, 255));
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cancel.setBackground(new Color(100, 149, 237));
+            }
+        });
+
         buttons.add(cancel);
 
         logIn.addActionListener(

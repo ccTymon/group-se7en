@@ -6,6 +6,7 @@ import okhttp3.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 import use_case.login.LoginUserDataAccessInterface;
+import use_case.logout.LogoutUserDataAccessInterface;
 import use_case.signup.SignupUserDataAccessInterface;
 
 import java.io.IOException;
@@ -14,7 +15,7 @@ import java.io.IOException;
  * The DAO for user data.
  */
 public class DBUserDataAccessObject implements SignupUserDataAccessInterface,
-                                               LoginUserDataAccessInterface
+                                               LoginUserDataAccessInterface, LogoutUserDataAccessInterface
                                                 {
     private static final int SUCCESS_CODE = 200;
     private static final String CONTENT_TYPE_LABEL = "Content-Type";

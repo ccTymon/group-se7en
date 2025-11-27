@@ -15,6 +15,7 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class MovieView extends JPanel implements ActionListener , PropertyChangeListener {
@@ -126,10 +127,43 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
         movieName.setText("Movie Name:  " + movieState.getMovieName());
         rating.setText("Rating:  \n" + movieState.getMovieRate());
         Plot.setText("Plot: \n " +  movieState.getMoviePlot());
+//        try {
+//            URL imageUrl = new URL(movieState.getMovieIcon());
+//
+//            HttpURLConnection connection = (HttpURLConnection) imageUrl.openConnection();
+//            connection.setRequestMethod("HEAD");
+//            connection.connect();
+//            BufferedImage img = ImageIO.read(imageUrl);
+//            if (connection.getResponseCode() == 404) {
+//                URL fallbackUrl = new URL("https://m.media-amazon.com/images/M/MV5BYzdjMDAxZGItMjI2My00ODA1LTlkNzItOWFjMDU5ZDJlYWY3XkEyXkFqcGc@._V1_SX300.jpg");
+//                BufferedImage img1 = ImageIO.read(fallbackUrl);
+//                movieIcon.setImage(img1);
+//            }
+//            else {
+//                movieIcon.setImage(img);
+//            }
+//
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
         try {
             URL imageUrl = new URL(movieState.getMovieIcon());
-            BufferedImage img = ImageIO.read(imageUrl);
+            HttpURLConnection connection = (HttpURLConnection) imageUrl.openConnection();
+            connection.setRequestMethod("HEAD");
+            connection.connect();  // actually send the request
+
+            BufferedImage img;
+            if (connection.getResponseCode() == 404) {
+                // Fallback image if the main image is missing
+                URL fallbackUrl = new URL("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTxuutX8HduKl2eiBeqSWo1VdXcOS9UxzsKhQ&s");
+                img = ImageIO.read(fallbackUrl);
+            } else {
+                img = ImageIO.read(imageUrl); // only read if the URL exists
+            }
+
             movieIcon.setImage(img);
+
         } catch (Exception e) {
             e.printStackTrace();
         }

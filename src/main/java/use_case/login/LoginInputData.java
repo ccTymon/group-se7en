@@ -7,10 +7,12 @@ public class LoginInputData {
 
     private final String username;
     private final String password;
+    private final String nextWatch;
 
     public LoginInputData(String username, String password) {
         this.username = username;
         this.password = password;
+        this.nextWatch = "tt0816692";
     }
 
     String getUsername() {
@@ -20,5 +22,7 @@ public class LoginInputData {
     String getPassword() {
         return password;
     }
+
+    String getNextWatch() {return nextWatch; }
 
 }
