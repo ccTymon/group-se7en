@@ -18,6 +18,8 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
@@ -27,13 +29,15 @@ public class LoggedInView extends JPanel implements ActionListener , PropertyCha
 
     private final String viewName = "logged in";
     private final JButton searchButton;
-    private final JLabel next_watch;
+    private JLabel next_watch;
+    private String next_watch_string;
     private final ViewManagerModel viewManagerModel;
     private final LoggedInViewModel loggedInViewModel;
     private final SearchViewModel searchViewModel;
     private JLabel userid;
     private SearchController searchController;
-    private LoggedinState loggedinState;
+    private BufferedImage image = null;
+    private ImageIcon imageIcon;
 
 
     public LoggedInView(ViewManagerModel viewManagerModel, LoggedInViewModel loggedInViewModel, SearchViewModel searchViewModel) {
@@ -44,30 +48,32 @@ public class LoggedInView extends JPanel implements ActionListener , PropertyCha
         loggedInViewModel.addPropertyChangeListener(this);
         userid = new JLabel("Hi");
         userid.setAlignmentX(Component.CENTER_ALIGNMENT);
+        this.imageIcon = new ImageIcon();
 
         next_watch = new JLabel();
         next_watch.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        ImageIcon imageIcon = new ImageIcon();
-
-        // if no image shows placeholder
-        if (imageIcon.getIconWidth() > 0) {
-            next_watch.setIcon(imageIcon);
-            next_watch.setPreferredSize(new Dimension(400, 650));
-        } else {
-            next_watch.setText("Movie placeholder");
-            next_watch.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-            next_watch.setPreferredSize(new Dimension(150, 150));
-        }
+        boolean b = image != null;
+        //if (b) {
+        //    next_watch.setText(next_watch_string);
+        //    next_watch.setIcon(imageIcon);
+        //    next_watch.setPreferredSize(new Dimension(400, 650));
+        //} else {
+        //    next_watch.setText("Movie placeholder");
+        //    next_watch.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        //    next_watch.setPreferredSize(new Dimension(150, 150));
+        //}
+        next_watch.setText("Movie placeholder");
+        next_watch.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        next_watch.setPreferredSize(new Dimension(150, 150));
 
         // Make the image clickable
         next_watch.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 System.out.println("image clicked");
-                // String movieName = loggedinState.getNext_watch();
-                String movieName = "The Shawshank Redemption";
-
+                String movieName = next_watch_string;
+                // String movieName = "The Shawshank Redemption";
                 final SearchState currentState = searchViewModel.getState();
                 currentState.setMoviename(movieName);
                 searchViewModel.setState(currentState);
@@ -109,6 +115,29 @@ public class LoggedInView extends JPanel implements ActionListener , PropertyCha
     public void propertyChange(PropertyChangeEvent evt) {
         final LoggedinState state = (LoggedinState) evt.getNewValue();
         userid.setText("hi" + "  " + state.getUsername());
+
+        next_watch_string = state.getNext_watch();
+        image = state.getNext_watch_poster();
+        //imageIcon.setImage(image);
+        //next_watch.setIcon(imageIcon);
+        if (image != null) {
+            imageIcon.setImage(image);
+            next_watch.setIcon(imageIcon);
+            next_watch.setText(next_watch_string); // Set text to movie name
+            // Set the preferred size for the actual image display
+            next_watch.setPreferredSize(new Dimension(image.getWidth(), image.getHeight()));
+            next_watch.setBorder(null); // Remove placeholder border
+        } else {
+            // Handle case where state updates but image is still null (e.g., loading state)
+            next_watch.setText("Movie placeholder");
+            next_watch.setIcon(null); // Clear icon
+            next_watch.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+            next_watch.setPreferredSize(new Dimension(150, 150));
+        }
+
+        // Must revalidate and repaint the container to reflect size/icon changes
+        revalidate();
+        repaint();
     }
 
 
