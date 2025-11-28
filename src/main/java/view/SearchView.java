@@ -1,5 +1,6 @@
 package view;
 
+import interface_adapter.ViewManagerModel;
 import interface_adapter.search.SearchController;
 import interface_adapter.search.SearchState;
 import interface_adapter.search.SearchViewModel;
@@ -16,23 +17,28 @@ import java.beans.PropertyChangeListener;
 public class SearchView extends JPanel implements ActionListener , PropertyChangeListener {
     private final String viewName = "search";
     private final SearchViewModel searchViewModel;
+    private final ViewManagerModel viewManagerModel;
 
     private final JButton searchButton;
+    private final JButton backButton;
     private final JTextField searchField = new JTextField(15);
 
     private SearchController searchController;
 
-    public SearchView(SearchViewModel searchViewModel) {
+    public SearchView(SearchViewModel searchViewModel,  ViewManagerModel viewManagerModel) {
         this.searchViewModel = searchViewModel;
         this.searchViewModel.addPropertyChangeListener(this);
+        this.viewManagerModel = viewManagerModel;
 
         final JLabel title = new JLabel("MovieSearch Screen");
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JPanel movieSearchPanel = new JPanel();
         searchButton = new JButton("Search");
+        backButton = new JButton("Back");
 
         searchButton.addActionListener(this);
+        backButton.addActionListener(this);
 
         searchField.getDocument().addDocumentListener(new DocumentListener() {
 
@@ -64,6 +70,7 @@ public class SearchView extends JPanel implements ActionListener , PropertyChang
 
         this.add(title);
         this.add(movieSearchPanel);
+        this.add(backButton);
     }
 
     @Override
@@ -71,6 +78,11 @@ public class SearchView extends JPanel implements ActionListener , PropertyChang
         if (evt.getSource().equals(searchButton)) {
             final SearchState currentState = searchViewModel.getState();
             searchController.execute(currentState.getMoviename());
+        }
+
+        if (evt.getSource().equals(backButton)) {
+            viewManagerModel.setState("logged in");
+            viewManagerModel.firePropertyChange();
         }
     }
 

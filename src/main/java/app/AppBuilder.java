@@ -30,6 +30,7 @@ import view.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 
 public class AppBuilder {
     private final JPanel cardPanel = new JPanel();
@@ -76,14 +77,14 @@ public class AppBuilder {
 
     public AppBuilder addSearchView() {
         searchViewModel = new SearchViewModel();
-        searchView = new SearchView(searchViewModel);
+        searchView = new SearchView(searchViewModel, viewManagerModel);
         cardPanel.add(searchView, searchView.getViewName());
         return this;
     }
 
     public AppBuilder addMovieView() {
         movieSearchModel = new MovieSearchModel();
-        movieView = new MovieView(movieSearchModel);
+        movieView = new MovieView(movieSearchModel, loggedInViewModel);
         cardPanel.add(movieView, movieView.getViewName());
         return this;
     }
@@ -95,7 +96,7 @@ public class AppBuilder {
         return this;
     }
 
-    public AppBuilder addLoggedInView() {
+    public AppBuilder addLoggedInView() throws IOException {
         loggedInViewModel = new LoggedInViewModel();
         SearchViewModel SearchViewModel = new SearchViewModel();
         loggedInView = new LoggedInView(viewManagerModel, loggedInViewModel, SearchViewModel);

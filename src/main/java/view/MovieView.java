@@ -1,5 +1,6 @@
 package view;
 
+import interface_adapter.loggedin.LoggedInViewModel;
 import interface_adapter.loggedin.LoggedinState;
 import interface_adapter.showmovie.MovieController;
 import interface_adapter.showmovie.MovieSearchModel;
@@ -23,6 +24,7 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
     private final JLabel movieName;
     private final JTextArea rating;
     private final MovieSearchModel movieSearchModel;
+    private final LoggedInViewModel loggedInViewModel;
     private final ImageIcon movieIcon;
     private final JLabel movieLabel;
     private final JTextArea Plot;
@@ -34,10 +36,12 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
     private final JTextField reviewField = new JTextField(15);
     private final JTextArea reviewsDisplay = new JTextArea(10, 20);
     private String next_watch = "";
-    private String next_watch_poster = "";
+    private BufferedImage next_watch_poster = null;
 
-    public MovieView(MovieSearchModel movieSearchModel) {
+    public MovieView(MovieSearchModel movieSearchModel, LoggedInViewModel loggedInViewModel) {
         this.movieSearchModel = movieSearchModel;
+        this.loggedInViewModel = loggedInViewModel;
+        this.loggedinState = new LoggedinState();
         movieSearchModel.addPropertyChangeListener(this);
 
         movieName = new JLabel("Movie Name");
@@ -135,6 +139,8 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
         if (e.getSource() == saveButton) {
             loggedinState.setNext_watch(next_watch);
             loggedinState.setNext_watch_poster(next_watch_poster);
+            loggedInViewModel.setState(loggedinState);
+            loggedInViewModel.firePropertyChange();
         }
     }
 
@@ -144,11 +150,11 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
         rating.setText("Rating:  \n" + movieState.getMovieRate());
         Plot.setText("Plot:\n" +  movieState.getMoviePlot());
         next_watch = movieState.getMovieName();
-        next_watch_poster = movieState.getMovieIcon();
         try {
             URL imageUrl = new URL(movieState.getMovieIcon());
             BufferedImage img = ImageIO.read(imageUrl);
             movieIcon.setImage(img);
+            next_watch_poster = img;
         } catch (Exception e) {
             e.printStackTrace();
         }
