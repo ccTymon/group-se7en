@@ -1,5 +1,6 @@
 package view;
 
+import entity.Review;
 import interface_adapter.login.LoggedInViewModel;
 import interface_adapter.loggedin.LoggedinState;
 import interface_adapter.showmovie.MovieController;
@@ -141,11 +142,12 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
 
     }
     public void logReview(String username, Integer rating, String review) throws IOException {
+
         if (currentMovieState == null) return;
 
         String movieID = currentMovieState.getMovieId();
         String path = "reviewDB.json";
-
+        Review currReview =  new Review("StrID", username, movieID, rating, review);
         // Read the existing data from the file (or create a new array if the file doesn't exist)
         JSONArray reviewsArray = new JSONArray();
         File file = new File(path);
