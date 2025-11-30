@@ -1,9 +1,8 @@
 package view;
 
 import interface_adapter.ViewManagerModel;
-import interface_adapter.loggedin.LoggedInViewModel;
+import interface_adapter.login.LoggedInViewModel;
 import interface_adapter.loggedin.LoggedinState;
-import interface_adapter.login.LoginState;
 import interface_adapter.search.SearchController;
 import interface_adapter.search.SearchState;
 import interface_adapter.search.SearchViewModel;

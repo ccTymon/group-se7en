@@ -1,6 +1,6 @@
 package view;
 
-import interface_adapter.loggedin.LoggedInViewModel;
+import interface_adapter.login.LoggedInViewModel;
 import interface_adapter.loggedin.LoggedinState;
 import interface_adapter.showmovie.MovieController;
 import interface_adapter.showmovie.MovieSearchModel;
