@@ -1,9 +1,8 @@
 package view;
 
 import interface_adapter.ViewManagerModel;
-import interface_adapter.loggedin.LoggedInViewModel;
+import interface_adapter.login.LoggedInViewModel;
 import interface_adapter.loggedin.LoggedinState;
-import interface_adapter.login.LoginState;
 import interface_adapter.search.SearchController;
 import interface_adapter.search.SearchState;
 import interface_adapter.search.SearchViewModel;
@@ -114,7 +113,7 @@ public class LoggedInView extends JPanel implements ActionListener , PropertyCha
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         final LoggedinState state = (LoggedinState) evt.getNewValue();
-        userid.setText("hi" + "  " + state.getUsername());
+        userid.setText("You are logged in as: \"" + state.getUsername() + "\"");
 
         next_watch_string = state.getNext_watch();
         image = state.getNext_watch_poster();
