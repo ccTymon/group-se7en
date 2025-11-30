@@ -8,8 +8,6 @@ import interface_adapter.showmovie.MovieState;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,7 +15,16 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URL;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class MovieView extends JPanel implements ActionListener , PropertyChangeListener {
     private final String viewName = "movie";
@@ -35,13 +42,15 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
     private final JButton reviewButton;
     private final JTextField reviewField = new JTextField(15);
     private final JTextArea reviewsDisplay = new JTextArea(10, 20);
+    private JComboBox<Integer> ratingDropdown;
     private String next_watch = "";
     private BufferedImage next_watch_poster = null;
+    private MovieState currentMovieState;
 
-    public MovieView(MovieSearchModel movieSearchModel, LoggedInViewModel loggedInViewModel) {
+    public MovieView(MovieSearchModel movieSearchModel, LoggedInViewModel loggedInViewModel) throws IOException {
         this.movieSearchModel = movieSearchModel;
         this.loggedInViewModel = loggedInViewModel;
-        this.loggedinState = new LoggedinState();
+        this.loggedinState = loggedInViewModel.getState();
         movieSearchModel.addPropertyChangeListener(this);
 
         movieName = new JLabel("Movie Name");
@@ -75,6 +84,7 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
 
         JPanel user_inputPanel = new JPanel(new BorderLayout());
         user_inputPanel.setLayout(new BoxLayout(user_inputPanel, BoxLayout.Y_AXIS));
+
         reviewButton = new JButton("Review");
         reviewButton.addActionListener(this);
 
@@ -83,7 +93,18 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
 
         user_inputPanel.setOpaque(false);
 
-        user_inputPanel.add(reviewField);
+        // user_inputPanel.add(reviewField);
+        JPanel reviewInputRow = new JPanel();
+        reviewInputRow.setLayout(new BoxLayout(reviewInputRow, BoxLayout.X_AXIS));
+
+        reviewInputRow.add(new JLabel("Review: "));
+        Integer[] values = {1,2,3,4,5,6,7,8,9,10};
+
+        ratingDropdown = new JComboBox<>(values);
+        reviewInputRow.add(ratingDropdown);
+        reviewInputRow.add(reviewField);
+
+        user_inputPanel.add(reviewInputRow);
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(reviewButton, BorderLayout.WEST);
@@ -99,6 +120,7 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
 
 
         user_inputPanel.add(reviewsDisplay);
+
 
         infoPanel.add(user_inputPanel, BorderLayout.SOUTH);
 
@@ -118,6 +140,56 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
         this.add(backButton);
 
     }
+    public void logReview(String username, Integer rating, String review) throws IOException {
+        if (currentMovieState == null) return;
+
+        String movieID = currentMovieState.getMovieId();
+        String path = "reviewDB.json";
+
+        // Read the existing data from the file (or create a new array if the file doesn't exist)
+        JSONArray reviewsArray = new JSONArray();
+        File file = new File(path);
+        if (file.exists()) {
+            // File exists, load existing reviews
+            String content = new String(Files.readAllBytes(Paths.get(path)));
+            reviewsArray = new JSONArray(content);
+        }
+
+        // Create a new review object
+        JSONObject newReview = new JSONObject();
+        newReview.put("username", username);
+        newReview.put("rating", rating);
+        newReview.put("review", review);
+
+        // Add the new review to the list for the current movie
+        boolean movieFound = false;
+        for (int i = 0; i < reviewsArray.length(); i++) {
+            JSONObject movieReview = reviewsArray.getJSONObject(i);
+            if (movieReview.getString("movieId").equals(movieID)) {
+                movieReview.getJSONArray("reviews").put(newReview);
+                movieFound = true;
+                break;
+            }
+        }
+
+        if (!movieFound) {
+            // If the movie doesn't exist in the file, create a new movie entry
+            JSONObject movieData = new JSONObject();
+            movieData.put("movieId", movieID);
+            JSONArray movieReviews = new JSONArray();
+            movieReviews.put(newReview);
+            movieData.put("reviews", movieReviews);
+            reviewsArray.put(movieData);
+        }
+
+        // Write the updated array back to the file
+        try (FileWriter fileWriter = new FileWriter(path)) {
+            fileWriter.write(reviewsArray.toString(4)); // Indentation level for pretty-printing
+        }
+    }
+
+
+
     public void actionPerformed(ActionEvent e) {
         if  (e.getSource() == backButton) {
             movieController.goBack();
@@ -125,15 +197,24 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
         }
 
         if (e.getSource() == reviewButton) {
-            String text = reviewField.getText().trim();
+            String reviewText = reviewField.getText().trim();
 
-            if (text.equals("") || text.equals("Write your review...")) {
+            if (reviewText.equals("") || reviewText.equals("Write your review...")) {
                 return;
             }
 
-            reviewsDisplay.append("- " + text + "\n");
+            // Fetchable:  currentState.getUsername(), reviewText, ratingNum,
+            Integer ratingNum = (Integer) ratingDropdown.getSelectedItem();
+            LoggedinState currentState = loggedInViewModel.getState();
+            reviewsDisplay.append(currentState.getUsername() + ": (" + ratingNum + "/10) " + reviewText + "\n");
 
             reviewField.setText("");
+
+            try {
+                logReview(currentState.getUsername(), ratingNum, reviewText);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
 
         if (e.getSource() == saveButton) {
@@ -150,6 +231,54 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
         rating.setText("Rating:  \n" + movieState.getMovieRate());
         Plot.setText("Plot:\n" +  movieState.getMoviePlot());
         next_watch = movieState.getMovieName();
+
+        // START SAMPLE COMMENT SECTION
+        String path = "reviewDB.json";
+        JSONArray reviewsArray;
+
+        if (Files.exists(Paths.get(path))) {
+            String content = null;
+            try {
+                content = new String(Files.readAllBytes(Paths.get(path)));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            reviewsArray = new JSONArray(content);
+        } else {
+            reviewsArray = new JSONArray(); // file missing → empty database
+        }
+        List<List<Object>> reviewList = new ArrayList<>();
+
+        for (int i = 0; i < reviewsArray.length(); i++) {
+            JSONObject movieObj = reviewsArray.getJSONObject(i);
+
+            if (movieObj.getString("movieId").equals(movieState.getMovieId())) {
+                JSONArray reviewArray = movieObj.getJSONArray("reviews");
+
+                for (int j = 0; j < reviewArray.length(); j++) {
+                    JSONObject r = reviewArray.getJSONObject(j);
+
+                    List<Object> entry = new ArrayList<>();
+                    entry.add(r.getString("username"));
+                    entry.add(r.getInt("rating"));
+                    entry.add(r.getString("review"));
+
+                    reviewList.add(entry);
+                }
+
+                break;
+            }
+        }
+        // Display comment
+        for (List<Object> entry : reviewList) {
+            String username = (String) entry.get(0);
+            int rating = (int) entry.get(1);
+            String comment = (String) entry.get(2);
+
+            reviewsDisplay.append(username + ": (" + rating + "/10) " + comment + "\n");
+        }
+        // END
+
         try {
             URL imageUrl = new URL(movieState.getMovieIcon());
             BufferedImage img = ImageIO.read(imageUrl);
@@ -158,7 +287,7 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        currentMovieState = movieState;
     }
 
     public String getViewName() {

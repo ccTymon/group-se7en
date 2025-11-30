@@ -82,7 +82,7 @@ public class AppBuilder {
         return this;
     }
 
-    public AppBuilder addMovieView() {
+    public AppBuilder addMovieView() throws IOException {
         movieSearchModel = new MovieSearchModel();
         movieView = new MovieView(movieSearchModel, loggedInViewModel);
         cardPanel.add(movieView, movieView.getViewName());
