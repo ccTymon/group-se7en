@@ -220,15 +220,27 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
         }
 
         if (e.getSource() == saveButton) {
+            LoggedinState currentState = loggedInViewModel.getState();
+            String username = currentState.getUsername();
             loggedinState.setNext_watch(next_watch);
             loggedinState.setNext_watch_poster(next_watch_poster);
             loggedInViewModel.setState(loggedinState);
             loggedInViewModel.firePropertyChange();
+
+            if (currentMovieState != null) {
+                saveUserWatchLater(
+                        username,
+                        next_watch,
+                        currentMovieState.getMovieIcon()
+                );
+            }
         }
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
+
         final MovieState movieState = (MovieState) evt.getNewValue();
+        currentMovieState = movieState;
         movieName.setText("Movie Name:  " + movieState.getMovieName());
         rating.setText("Rating:  \n" + movieState.getMovieRate());
         Plot.setText("Plot:\n" +  movieState.getMoviePlot());
@@ -254,6 +266,8 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
         for (int i = 0; i < reviewsArray.length(); i++) {
             JSONObject movieObj = reviewsArray.getJSONObject(i);
 
+
+
             if (movieObj.getString("movieId").equals(movieState.getMovieId())) {
                 JSONArray reviewArray = movieObj.getJSONArray("reviews");
 
@@ -271,7 +285,9 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
                 break;
             }
         }
-        // Display comment
+
+
+        reviewsDisplay.setText("");
         for (List<Object> entry : reviewList) {
             String username = (String) entry.get(0);
             int rating = (int) entry.get(1);
@@ -296,6 +312,7 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
                 img = ImageIO.read(imageUrl); // only read if the URL exists
             }
 
+            next_watch_poster = img;
             movieIcon.setImage(img);
 
         } catch (Exception e) {
@@ -305,6 +322,48 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
 
     public String getViewName() {
         return viewName;
+    }
+
+    private void saveUserWatchLater(String username, String movieName, String posterUrl) {
+        String path = "userDataDB.json";
+        JSONArray usersArray = new JSONArray();
+
+        File file = new File(path);
+        if (file.exists()) {
+            try {
+                String content = new String(Files.readAllBytes(Paths.get(path)));
+                usersArray = new JSONArray(content);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Find and update user's data, or create new entry
+        boolean userFound = false;
+        for (int i = 0; i < usersArray.length(); i++) {
+            JSONObject userObj = usersArray.getJSONObject(i);
+            if (userObj.getString("username").equals(username)) {
+                userObj.put("nextWatch", movieName);
+                userObj.put("posterUrl", posterUrl);
+                userFound = true;
+                break;
+            }
+        }
+
+        if (!userFound) {
+            JSONObject newUser = new JSONObject();
+            newUser.put("username", username);
+            newUser.put("nextWatch", movieName);
+            newUser.put("posterUrl", posterUrl);
+            usersArray.put(newUser);
+        }
+
+        // Write to file
+        try (FileWriter fileWriter = new FileWriter(path)) {
+            fileWriter.write(usersArray.toString(4));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void  setMovieController(MovieController movieController) {
