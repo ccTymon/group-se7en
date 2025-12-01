@@ -7,7 +7,10 @@ import interface_adapter.search.SearchController;
 import interface_adapter.search.SearchState;
 import interface_adapter.search.SearchViewModel;
 import interface_adapter.logout.LogoutController;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -17,6 +20,10 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * The View for when the user is logged into the program.
@@ -51,6 +58,9 @@ public class LoggedInView extends JPanel implements ActionListener , PropertyCha
 
         next_watch = new JLabel();
         next_watch.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        final JLabel title = new JLabel("Your next watch");
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         boolean b = image != null;
         //if (b) {
@@ -100,6 +110,7 @@ public class LoggedInView extends JPanel implements ActionListener , PropertyCha
 
         this.add(userid);
         this.add(buttons);
+        this.add(title);
         this.add(next_watch);
     }
 
@@ -130,14 +141,20 @@ public class LoggedInView extends JPanel implements ActionListener , PropertyCha
         final LoggedinState state = (LoggedinState) evt.getNewValue();
         userid.setText("You are logged in as: \"" + state.getUsername() + "\"");
 
+        if (state.getNext_watch() == null || state.getNext_watch().isEmpty()) {
+            loadUserWatchLater(state.getUsername());
+        }
+
         next_watch_string = state.getNext_watch();
         image = state.getNext_watch_poster();
+        System.out.println(state.getNext_watch_poster());
         //imageIcon.setImage(image);
         //next_watch.setIcon(imageIcon);
         if (image != null) {
+            next_watch.setText(next_watch_string);
             imageIcon.setImage(image);
             next_watch.setIcon(imageIcon);
-            next_watch.setText(next_watch_string); // Set text to movie name
+             // Set text to movie name
             // Set the preferred size for the actual image display
             next_watch.setPreferredSize(new Dimension(image.getWidth(), image.getHeight()));
             next_watch.setBorder(null); // Remove placeholder border
@@ -152,6 +169,60 @@ public class LoggedInView extends JPanel implements ActionListener , PropertyCha
         // Must revalidate and repaint the container to reflect size/icon changes
         revalidate();
         repaint();
+    }
+
+    public void loadUserWatchLater(String username) {
+        String path = "userDataDB.json";
+
+        if (!Files.exists(Paths.get(path))) {
+            return;
+        }
+
+        try {
+            String content = new String(Files.readAllBytes(Paths.get(path)));
+            JSONArray usersArray = new JSONArray(content);
+
+            for (int i = 0; i < usersArray.length(); i++) {
+                JSONObject userObj = usersArray.getJSONObject(i);
+                if (userObj.getString("username").equals(username)) {
+                    String movieName = userObj.optString("nextWatch", null);
+                    String posterUrl = userObj.optString("posterUrl", null);
+
+                    if (movieName != null && posterUrl != null) {
+                        // Load the image
+                        loadPosterImage(movieName, posterUrl);
+                    }
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadPosterImage(String movieName, String posterUrl) {
+        SwingWorker<BufferedImage, Void> worker = new SwingWorker<>() {
+            @Override
+            protected BufferedImage doInBackground() throws Exception {
+                URL imageUrl = new URL(posterUrl);
+                return ImageIO.read(imageUrl);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    BufferedImage img = get();
+                    LoggedinState currentState = loggedInViewModel.getState();
+                    currentState.setNext_watch(movieName);
+                    currentState.setNext_watch_poster(img);
+                    loggedInViewModel.setState(currentState);
+                    loggedInViewModel.firePropertyChange();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        worker.execute();
     }
 
     public void setLogoutController(LogoutController logoutController) {
