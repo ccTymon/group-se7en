@@ -16,6 +16,7 @@ public class Main {
                 .addLoginUseCase()
                 .addSearchUseCase()
                 .addMovieUseCase()
+                .addLogoutUseCase()
                 .build();
 
 

@@ -1,13 +1,13 @@
 package view;
 
 import interface_adapter.ViewManagerModel;
-import interface_adapter.login.LoggedInViewModel;
+import interface_adapter.loggedin.LoggedInViewModel;
 import interface_adapter.loggedin.LoggedinState;
 import interface_adapter.search.SearchController;
 import interface_adapter.search.SearchState;
 import interface_adapter.search.SearchViewModel;
+import interface_adapter.logout.LogoutController;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -17,9 +17,6 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 /**
  * The View for when the user is logged into the program.
@@ -33,10 +30,12 @@ public class LoggedInView extends JPanel implements ActionListener , PropertyCha
     private final ViewManagerModel viewManagerModel;
     private final LoggedInViewModel loggedInViewModel;
     private final SearchViewModel searchViewModel;
+    private LogoutController logoutController;
     private JLabel userid;
     private SearchController searchController;
     private BufferedImage image = null;
     private ImageIcon imageIcon;
+    private final JButton logOut;
 
 
     public LoggedInView(ViewManagerModel viewManagerModel, LoggedInViewModel loggedInViewModel, SearchViewModel searchViewModel) {
@@ -48,6 +47,7 @@ public class LoggedInView extends JPanel implements ActionListener , PropertyCha
         userid = new JLabel("Hi");
         userid.setAlignmentX(Component.CENTER_ALIGNMENT);
         this.imageIcon = new ImageIcon();
+
 
         next_watch = new JLabel();
         next_watch.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -87,10 +87,13 @@ public class LoggedInView extends JPanel implements ActionListener , PropertyCha
 
         final JPanel buttons = new JPanel();
         searchButton = new JButton("search");
+        logOut = new JButton("Log Out");
+        buttons.add(logOut);
         buttons.add(searchButton);
         buttons.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         searchButton.addActionListener(this);
+        logOut.addActionListener(this);
 
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
@@ -100,10 +103,22 @@ public class LoggedInView extends JPanel implements ActionListener , PropertyCha
         this.add(next_watch);
     }
 
+    @Override
     public void actionPerformed(ActionEvent evt) {
-        viewManagerModel.setState("search");
-        viewManagerModel.firePropertyChange();
+        Object source = evt.getSource();
+
+        if (source == logOut) {
+            logoutController.execute();
+            System.out.println("Logged out!");
+        }
+        else if (source == searchButton) {
+            viewManagerModel.setState("search");
+            viewManagerModel.firePropertyChange();
+            System.out.println("Search clicked!");
+        }
     }
+
+
 
 
     public String getViewName() {
@@ -137,6 +152,10 @@ public class LoggedInView extends JPanel implements ActionListener , PropertyCha
         // Must revalidate and repaint the container to reflect size/icon changes
         revalidate();
         repaint();
+    }
+
+    public void setLogoutController(LogoutController logoutController) {
+        this.logoutController = logoutController;
     }
 
 
