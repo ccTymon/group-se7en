@@ -1,7 +1,7 @@
 package view;
 
 import entity.Review;
-import interface_adapter.login.LoggedInViewModel;
+import interface_adapter.loggedin.LoggedInViewModel;
 import interface_adapter.loggedin.LoggedinState;
 import interface_adapter.showmovie.MovieController;
 import interface_adapter.showmovie.MovieSearchModel;
@@ -18,6 +18,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -25,7 +26,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class MovieView extends JPanel implements ActionListener , PropertyChangeListener {
     private final String viewName = "movie";
@@ -283,13 +283,24 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
 
         try {
             URL imageUrl = new URL(movieState.getMovieIcon());
-            BufferedImage img = ImageIO.read(imageUrl);
+            HttpURLConnection connection = (HttpURLConnection) imageUrl.openConnection();
+            connection.setRequestMethod("HEAD");
+            connection.connect();  // actually send the request
+
+            BufferedImage img;
+            if (connection.getResponseCode() == 404) {
+                // Fallback image if the main image is missing
+                URL fallbackUrl = new URL("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTxuutX8HduKl2eiBeqSWo1VdXcOS9UxzsKhQ&s");
+                img = ImageIO.read(fallbackUrl);
+            } else {
+                img = ImageIO.read(imageUrl); // only read if the URL exists
+            }
+
             movieIcon.setImage(img);
-            next_watch_poster = img;
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-        currentMovieState = movieState;
     }
 
     public String getViewName() {
