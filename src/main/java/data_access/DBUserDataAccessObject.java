@@ -14,7 +14,7 @@ import java.io.IOException;
 /**
  * The DAO for user data.
  */
-public class DBUserDataAccessObject implements SignupUserDataAccessInterface,
+abstract class DBUserDataAccessObject implements SignupUserDataAccessInterface,
                                                LoginUserDataAccessInterface, LogoutUserDataAccessInterface
                                                 {
     private static final int SUCCESS_CODE = 200;

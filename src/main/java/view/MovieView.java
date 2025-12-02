@@ -226,14 +226,22 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
             // loggedinState.setNext_watch_poster(next_watch_poster);
             movieController.saveInternal(username, next_watch, next_watch_poster);
             loggedInViewModel.setState(loggedinState);
-            loggedInViewModel.firePropertyChange();
-
+//            loggedInViewModel.firePropertyChange();
+//
+//            if (currentMovieState != null) {
+//                saveUserWatchLater(
+//                        username,
+//                        next_watch,
+//                        currentMovieState.getMovieIcon()
+//                );
             if (currentMovieState != null) {
-                saveUserWatchLater(
+                movieController.saveInternal(
                         username,
-                        next_watch,
+                        currentMovieState.getMovieName(),
                         currentMovieState.getMovieIcon()
                 );
+
+                System.out.println("Saved to watch later: " + currentMovieState.getMovieName());
             }
         }
     }

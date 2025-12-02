@@ -2,6 +2,8 @@ package use_case.login;
 
 import entity.User;
 
+import java.util.Map;
+
 /**
  * DAO interface for the Login Use Case.
  */
@@ -30,4 +32,6 @@ public interface LoginUserDataAccessInterface {
     void setCurrentUsername(String name);
 
     String getCurrentUsername();
+
+    Map<String,String> watchLater(String username);
 }

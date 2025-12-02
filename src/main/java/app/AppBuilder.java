@@ -2,7 +2,7 @@ package app;
 
 import data_access.FileMovieDataAccessObject;
 import data_access.FileReviewDataAccessObject;
-import data_access.FileUserDataAccessObject;
+import data_access.UserDataAccessInterface;
 import entity.ReviewFactory;
 import entity.UserFactory;
 import interface_adapter.ViewManagerModel;
@@ -55,16 +55,13 @@ public class AppBuilder {
     // of the classes from the data_access package
 
     // DAO version using local file storage
-    final FileUserDataAccessObject userDataAccessObject = new FileUserDataAccessObject("users.csv", userFactory);
+    final UserDataAccessInterface userDataAccessObject = new UserDataAccessInterface("users.csv", userFactory);
 
     // DAO for local review storage
     final FileReviewDataAccessObject fileReviewDataAccessObject = new FileReviewDataAccessObject(
             "reviews.json", reviewFactory);
 
     final FileMovieDataAccessObject fileMovieDataAccessObject = new FileMovieDataAccessObject("movieDB.json");
-
-    // DAO version using a shared external database
-    //final DBUserDataAccessObject userDataAccessObject = new DBUserDataAccessObject(userFactory);
 
     private SignupView signupView;
     private SignupViewModel signupViewModel;
@@ -109,7 +106,7 @@ public class AppBuilder {
         return this;
     }
 
-    public AppBuilder addLoggedInView() throws IOException {
+    public AppBuilder addLoggedInView() {
         loggedInViewModel = new LoggedInViewModel();
         SearchViewModel SearchViewModel = new SearchViewModel();
         loggedInView = new LoggedInView(viewManagerModel, loggedInViewModel, SearchViewModel);
@@ -162,7 +159,9 @@ public class AppBuilder {
         // We inject the DAOs (for saving data) and the Presenter (for outputting data).
         final MovieInputBoundary movieInteractor = new MovieInteractor(
                 movieOutputBoundary,
-                userDataAccessObject
+                userDataAccessObject,
+                fileReviewDataAccessObject,
+                reviewFactory
         ) {
             @Override
             public void executeSave(MovieInputData movieInputData) {

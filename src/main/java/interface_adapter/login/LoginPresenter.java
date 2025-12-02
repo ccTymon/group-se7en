@@ -27,6 +27,7 @@ public class LoginPresenter implements LoginOutputBoundary {
     public void prepareSuccessView(LoginOutputData response) {
         final LoggedinState loggedinState = new LoggedinState();
         loggedinState.setUsername(response.getUsername());
+        loggedinState.setWatchLater(response.getWatchLater());
         loggedInViewModel.setState(loggedinState);
         this.loggedInViewModel.firePropertyChange();
 

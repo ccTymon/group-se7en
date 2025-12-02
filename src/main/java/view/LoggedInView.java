@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Map;
 
 /**
  * The View for when the user is logged into the program.
@@ -141,64 +142,62 @@ public class LoggedInView extends JPanel implements ActionListener , PropertyCha
         final LoggedinState state = (LoggedinState) evt.getNewValue();
         userid.setText("You are logged in as: \"" + state.getUsername() + "\"");
 
-        if (state.getNext_watch() == null || state.getNext_watch().isEmpty()) {
-            loadUserWatchLater(state.getUsername());
-        }
+        Map<String, String> watchLater = state.getWatchLater();
 
-        next_watch_string = state.getNext_watch();
-        image = state.getNext_watch_poster();
-        System.out.println(state.getNext_watch_poster());
-        //imageIcon.setImage(image);
-        //next_watch.setIcon(imageIcon);
-        if (image != null) {
-            next_watch.setText(next_watch_string);
-            imageIcon.setImage(image);
-            next_watch.setIcon(imageIcon);
-             // Set text to movie name
-            // Set the preferred size for the actual image display
-            next_watch.setPreferredSize(new Dimension(image.getWidth(), image.getHeight()));
-            next_watch.setBorder(null); // Remove placeholder border
+        if (watchLater != null) {
+            String savedMovie = watchLater.get("movie");
+            String savedUrl = watchLater.get("url");
+
+            if (savedMovie != null && !savedMovie.equals("none")) {
+                // Load the poster image
+                loadPosterImage(savedMovie, savedUrl);
+            } else {
+                // No movie saved - show placeholder
+                displayPlaceholder();
+            }
         } else {
-            // Handle case where state updates but image is still null (e.g., loading state)
-            next_watch.setText("Movie placeholder");
-            next_watch.setIcon(null); // Clear icon
-            next_watch.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-            next_watch.setPreferredSize(new Dimension(150, 150));
+            // No watch later data - show placeholder
+            displayPlaceholder();
         }
+    }
 
-        // Must revalidate and repaint the container to reflect size/icon changes
+    private void displayPlaceholder() {
+        next_watch.setText("No movie saved");
+        next_watch.setIcon(null);
+        next_watch.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        next_watch.setPreferredSize(new Dimension(150, 150));
         revalidate();
         repaint();
     }
 
-    public void loadUserWatchLater(String username) {
-        String path = "userDataDB.json";
-
-        if (!Files.exists(Paths.get(path))) {
-            return;
-        }
-
-        try {
-            String content = new String(Files.readAllBytes(Paths.get(path)));
-            JSONArray usersArray = new JSONArray(content);
-
-            for (int i = 0; i < usersArray.length(); i++) {
-                JSONObject userObj = usersArray.getJSONObject(i);
-                if (userObj.getString("username").equals(username)) {
-                    String movieName = userObj.optString("nextWatch", null);
-                    String posterUrl = userObj.optString("posterUrl", null);
-
-                    if (movieName != null && posterUrl != null) {
-                        // Load the image
-                        loadPosterImage(movieName, posterUrl);
-                    }
-                    break;
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    public void loadUserWatchLater(String username) {
+//        String path = "userDataDB.json";
+//
+//        if (!Files.exists(Paths.get(path))) {
+//            return;
+//        }
+//
+//        try {
+//            String content = new String(Files.readAllBytes(Paths.get(path)));
+//            JSONArray usersArray = new JSONArray(content);
+//
+//            for (int i = 0; i < usersArray.length(); i++) {
+//                JSONObject userObj = usersArray.getJSONObject(i);
+//                if (userObj.getString("username").equals(username)) {
+//                    String movieName = userObj.optString("nextWatch", null);
+//                    String posterUrl = userObj.optString("posterUrl", null);
+//
+//                    if (movieName != null && posterUrl != null) {
+//                        // Load the image
+//                        loadPosterImage(movieName, posterUrl);
+//                    }
+//                    break;
+//                }
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     private void loadPosterImage(String movieName, String posterUrl) {
         SwingWorker<BufferedImage, Void> worker = new SwingWorker<>() {
@@ -212,11 +211,25 @@ public class LoggedInView extends JPanel implements ActionListener , PropertyCha
             protected void done() {
                 try {
                     BufferedImage img = get();
-                    LoggedinState currentState = loggedInViewModel.getState();
-                    currentState.setNext_watch(movieName);
-                    currentState.setNext_watch_poster(img);
-                    loggedInViewModel.setState(currentState);
-                    loggedInViewModel.firePropertyChange();
+                    next_watch_string = movieName;
+                    image = img;
+//                    LoggedinState currentState = loggedInViewModel.getState();
+//                    currentState.setNext_watch(movieName);
+//                    currentState.setNext_watch_poster(img);
+//                    loggedInViewModel.setState(currentState);
+//                    loggedInViewModel.firePropertyChange();
+
+                    if (img != null) {
+                        next_watch.setText(movieName);
+                        imageIcon.setImage(img);
+                        next_watch.setIcon(imageIcon);
+                        next_watch.setPreferredSize(new Dimension(img.getWidth(), img.getHeight()));
+                        next_watch.setBorder(null);}
+                    else {
+                        displayPlaceholder();
+                    }
+                    revalidate();
+                    repaint();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

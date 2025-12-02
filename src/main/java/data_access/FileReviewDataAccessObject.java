@@ -5,6 +5,7 @@ import entity.ReviewFactory;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import use_case.showmovie.ReviewDataAccessInterface;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -14,7 +15,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FileReviewDataAccessObject {
+public class FileReviewDataAccessObject implements ReviewDataAccessInterface {
 
     private final File reviewDB;
     private final Map<String, Review> reviews = new HashMap<>();
@@ -113,5 +114,10 @@ public class FileReviewDataAccessObject {
 
     public String getMasterID() {
         return masterID;
+    }
+
+    @Override
+    public Review retrieve(String rID) {
+        return this.reviews.get(rID);
     }
 }
