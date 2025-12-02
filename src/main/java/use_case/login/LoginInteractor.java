@@ -2,6 +2,8 @@ package use_case.login;
 
 import entity.User;
 
+import java.util.Map;
+
 /**
  * The Login Interactor.
  */
@@ -32,8 +34,9 @@ public class LoginInteractor implements LoginInputBoundary {
                 final User user = userDataAccessObject.get(loginInputData.getUsername());
 
                 userDataAccessObject.setCurrentUsername(username);
+                Map<String, String> watchLater = userDataAccessObject.watchLater(username);
 
-                final LoginOutputData loginOutputData = new LoginOutputData(user.getName());
+                final LoginOutputData loginOutputData = new LoginOutputData(user.getName(), watchLater, false);
                 loginPresenter.prepareSuccessView(loginOutputData);
             }
         }

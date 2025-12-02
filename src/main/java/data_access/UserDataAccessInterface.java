@@ -149,6 +149,7 @@ public class UserDataAccessInterface implements SignupUserDataAccessInterface,
     public void saveWatchLater(String user, String movie, String url) {
         watchLater(user).put("movie", movie);
         watchLater(user).put("url", url);
+        this.save();
     }
 
     @Override
