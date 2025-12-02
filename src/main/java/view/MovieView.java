@@ -45,7 +45,7 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
     private final JTextArea reviewsDisplay = new JTextArea(10, 20);
     private JComboBox<Integer> ratingDropdown;
     private String next_watch = "";
-    private BufferedImage next_watch_poster = null;
+    private String next_watch_poster = null;
     private MovieState currentMovieState;
 
     public MovieView(MovieSearchModel movieSearchModel, LoggedInViewModel loggedInViewModel) throws IOException {
@@ -222,8 +222,9 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
         if (e.getSource() == saveButton) {
             LoggedinState currentState = loggedInViewModel.getState();
             String username = currentState.getUsername();
-            loggedinState.setNext_watch(next_watch);
-            loggedinState.setNext_watch_poster(next_watch_poster);
+            // loggedinState.setNext_watch(next_watch);
+            // loggedinState.setNext_watch_poster(next_watch_poster);
+            movieController.saveInternal(username, next_watch, next_watch_poster);
             loggedInViewModel.setState(loggedinState);
             loggedInViewModel.firePropertyChange();
 
@@ -312,7 +313,7 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
                 img = ImageIO.read(imageUrl); // only read if the URL exists
             }
 
-            next_watch_poster = img;
+            next_watch_poster = movieState.getMovieIcon();
             movieIcon.setImage(img);
 
         } catch (Exception e) {

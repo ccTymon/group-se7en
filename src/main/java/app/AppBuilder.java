@@ -16,6 +16,7 @@ import interface_adapter.search.SearchController;
 import interface_adapter.search.SearchPresenter;
 import interface_adapter.search.SearchViewModel;
 import interface_adapter.showmovie.MovieController;
+import interface_adapter.showmovie.MoviePresenter;
 import interface_adapter.showmovie.MovieSearchModel;
 import interface_adapter.signup.SignupController;
 import interface_adapter.signup.SignupPresenter;
@@ -29,6 +30,10 @@ import use_case.logout.LogoutOutputBoundary;
 import use_case.search.SearchInputBoundary;
 import use_case.search.SearchInteractor;
 import use_case.search.SearchOutputBoundary;
+import use_case.showmovie.MovieInputBoundary;
+import use_case.showmovie.MovieInputData;
+import use_case.showmovie.MovieInteractor;
+import use_case.showmovie.MovieOutputBoundary;
 import use_case.signup.SignupInputBoundary;
 import use_case.signup.SignupInteractor;
 import use_case.signup.SignupOutputBoundary;
@@ -151,9 +156,23 @@ public class AppBuilder {
     }
 
     public AppBuilder addMovieUseCase() {
+        final MovieOutputBoundary movieOutputBoundary = new MoviePresenter(viewManagerModel, movieSearchModel);
+
+        // 2. Create the Interactor
+        // We inject the DAOs (for saving data) and the Presenter (for outputting data).
+        final MovieInputBoundary movieInteractor = new MovieInteractor(
+                movieOutputBoundary,
+                userDataAccessObject
+        ) {
+            @Override
+            public void executeSave(MovieInputData movieInputData) {
+
+            }
+        };
         MovieController movieController = new MovieController(
                 viewManagerModel,
-                searchViewModel
+                searchViewModel,
+                movieInteractor
         );
         movieView.setMovieController(movieController);
         return this;
