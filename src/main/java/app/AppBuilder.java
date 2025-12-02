@@ -161,7 +161,8 @@ public class AppBuilder {
                 movieOutputBoundary,
                 userDataAccessObject,
                 fileReviewDataAccessObject,
-                reviewFactory
+                reviewFactory,
+                loggedInViewModel
         ) {
             @Override
             public void executeSave(MovieInputData movieInputData) {
