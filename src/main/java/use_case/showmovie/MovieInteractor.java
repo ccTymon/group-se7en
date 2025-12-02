@@ -2,6 +2,10 @@ package use_case.showmovie;
 
 import entity.Review;
 import entity.ReviewFactory;
+import interface_adapter.loggedin.LoggedInViewModel;
+import interface_adapter.loggedin.LoggedinState;
+
+import java.util.Map;
 
 
 public abstract class MovieInteractor implements MovieInputBoundary {
@@ -9,15 +13,17 @@ public abstract class MovieInteractor implements MovieInputBoundary {
     final MovieUserDataAccessInterface fileUserDataAccessObject;
     final ReviewDataAccessInterface fileReviewDataAccessObject;
     private final ReviewFactory reviewFactory;
+    private final LoggedInViewModel loggedInViewModel;
 
     protected MovieInteractor(MovieOutputBoundary movieOutputBoundary,
                               MovieUserDataAccessInterface fileUserDataAccessObject,
                               ReviewDataAccessInterface fileReviewDataAccessObject,
-                              ReviewFactory reviewFactory) {
+                              ReviewFactory reviewFactory, LoggedInViewModel loggedInViewModel) {
         this.moviePresenter = movieOutputBoundary;
         this.fileUserDataAccessObject = fileUserDataAccessObject;
         this.fileReviewDataAccessObject = fileReviewDataAccessObject;
         this.reviewFactory = reviewFactory;
+        this.loggedInViewModel = loggedInViewModel;
     }
 
     @Override
@@ -29,6 +35,13 @@ public abstract class MovieInteractor implements MovieInputBoundary {
                     inputData.getMovieName(),
                     inputData.getPosterUrl()
             );
+            Map<String, String> watchLater = fileUserDataAccessObject.watchLater(inputData.getUsername());
+            LoggedinState loggedInState = loggedInViewModel.getState();
+            loggedInState.setWatchLater(watchLater);
+            loggedInState.setUsername(inputData.getUsername());
+            loggedInViewModel.setState(loggedInState);
+            loggedInViewModel.firePropertyChange();
+
 
             // Prepare Success View
             MovieOutputData outputData = new MovieOutputData(
