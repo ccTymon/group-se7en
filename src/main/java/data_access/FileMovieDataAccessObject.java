@@ -4,20 +4,18 @@ import entity.Review;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import use_case.showmovie.MovieDataAccessInterface;
 
-import java.awt.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-public class FileMovieDataAccessObject {
+public class FileMovieDataAccessObject implements MovieDataAccessInterface {
     private final File movieDB;
-    private final Map<String, List> movies = new HashMap<>();
+    private final Map<String, ArrayList<String>> movies = new HashMap<>();
 
     public FileMovieDataAccessObject(String moviePath) {
         movieDB = new File(moviePath);
@@ -33,7 +31,7 @@ public class FileMovieDataAccessObject {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     Set<String> keys = jsonObject.keySet();
                     String movieID = keys.toArray()[0].toString();
-                    List commentID = new List();
+                    ArrayList<String> commentID = new ArrayList<>();
 
                     for (int j = 0; j < jsonObject.getJSONArray(movieID).length(); j++) {
                         commentID.add(jsonObject.getJSONArray(movieID).getString(j));
@@ -58,10 +56,10 @@ public class FileMovieDataAccessObject {
                 jsonWriter.key(key);
 
                 JSONArray jsonArray = new JSONArray();
-                List comments = movies.get(key);
+                List<String> comments = movies.get(key);
 
-                for (int i = 0; i < comments.getItemCount(); i++) {
-                    jsonArray.put(comments.getItem(i));
+                for (Object comment : comments) {
+                    jsonArray.put(comment);
                 }
 
                 jsonWriter.value(jsonArray);
@@ -82,19 +80,24 @@ public class FileMovieDataAccessObject {
             movies.get(review.getMovieID()).add(review.getrID());
         }
         else{
-            List comments = new List();
+            ArrayList<String> comments = new ArrayList<>();
             comments.add(review.getrID());
             movies.put(review.getMovieID(), comments);
         }
         this.save();
     }
 
-    public Map<String, List> getMovies() {
+    public Map<String, ArrayList<String>> getMovies() {
         return movies;
     }
 
-    public List getCommentIDs(String movieID) {
+    public List<String> getComments(String movieID) {
         return getMovies().get(movieID);
+    }
+
+    @Override
+    public Boolean checkMovie(String movieID) {
+        return this.movies.containsKey(movieID);
     }
 }
 
