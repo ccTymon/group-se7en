@@ -32,7 +32,14 @@ public abstract class MovieInteractor implements MovieInputBoundary {
 
         } else if (inputData.getAction().equals("review")) {
             fileUserDataAccessObject.saveUserReview(
-                    inputData.getUsername()
+                    inputData.getUsername(),
+                    inputData.getMovieId(),
+                    inputData.getRating(),
+                    inputData.getReviewContent());
+
+
+            fileUserDataAccessObject.getUserReview(
+                    // review object
             );
 
         }
