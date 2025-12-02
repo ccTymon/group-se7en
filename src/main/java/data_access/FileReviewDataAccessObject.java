@@ -105,6 +105,8 @@ public class FileReviewDataAccessObject {
         FileReviewDataAccessObject.masterID = masterID;
     }
 
+    public Review getReview(String rID) {return this.reviews.get(rID);}
+
     public static Integer getCounter() {
         return counter;
     }
