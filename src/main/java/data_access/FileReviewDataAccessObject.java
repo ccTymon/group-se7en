@@ -67,7 +67,6 @@ public class FileReviewDataAccessObject implements ReviewDataAccessInterface {
         try {
             jsonWriter = new JSONWriter(new FileWriter(reviewDB));
             jsonWriter.array();
-            Integer comparator = 0;
             // adds a new json entry for each review in the database.
             for (Review value : reviews.values()) {
 
@@ -86,7 +85,7 @@ public class FileReviewDataAccessObject implements ReviewDataAccessInterface {
                         .endObject();
 
                 //update if necessary the masterID
-                comparator = Integer.getInteger(value.getrID().substring(1));
+                Integer comparator = Integer.getInteger(value.getrID().substring(1));
                 if(comparator > counter){
                     setCounter(comparator + 1);
                     setMasterID("a" + counter);
