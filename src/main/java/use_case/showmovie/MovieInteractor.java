@@ -1,6 +1,7 @@
 package use_case.showmovie;
 
 import data_access.FileUserDataAccessObject;
+import entity.Review;
 
 
 public abstract class MovieInteractor implements MovieInputBoundary {
@@ -38,9 +39,10 @@ public abstract class MovieInteractor implements MovieInputBoundary {
                     inputData.getReviewContent());
 
 
-            fileUserDataAccessObject.getUserReview(
+            Review newcomment = fileUserDataAccessObject.getUserReview(
                     // review object
             );
+            MovieOutputData outputData = new MovieOutputData();
 
         }
 
