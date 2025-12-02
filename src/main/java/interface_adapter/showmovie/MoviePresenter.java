@@ -28,7 +28,7 @@ public class MoviePresenter implements MovieOutputBoundary {
     public void prepareSuccessReviewView(MovieOutputData outputData) {
         // Update Movie State (Reviews List)
 
-        // MATT AND MUSTAFA TO IMPLEMENT
+
 
 
         MovieState state = movieSearchModel.getState();
