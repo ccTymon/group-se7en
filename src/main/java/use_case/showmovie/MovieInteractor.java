@@ -1,22 +1,30 @@
 package use_case.showmovie;
 
-import data_access.FileUserDataAccessObject;
+import entity.Review;
+import entity.ReviewFactory;
 
 
 public abstract class MovieInteractor implements MovieInputBoundary {
     final MovieOutputBoundary moviePresenter;
-    final FileUserDataAccessObject fileUserDataAccessObject;
+    final MovieUserDataAccessInterface fileUserDataAccessObject;
+    final ReviewDataAccessInterface fileReviewDataAccessObject;
+    private final ReviewFactory reviewFactory;
 
-    public MovieInteractor(MovieOutputBoundary movieOutputBoundary, FileUserDataAccessObject fileUserDataAccessObject) {
+    protected MovieInteractor(MovieOutputBoundary movieOutputBoundary,
+                              MovieUserDataAccessInterface fileUserDataAccessObject,
+                              ReviewDataAccessInterface fileReviewDataAccessObject,
+                              ReviewFactory reviewFactory) {
         this.moviePresenter = movieOutputBoundary;
         this.fileUserDataAccessObject = fileUserDataAccessObject;
+        this.fileReviewDataAccessObject = fileReviewDataAccessObject;
+        this.reviewFactory = reviewFactory;
     }
 
     @Override
     public void execute(MovieInputData inputData) {
         if (inputData.getAction().equals("save")) {
             // Save to JSON via DAO
-            fileUserDataAccessObject.saveUserWatchLater(
+            fileUserDataAccessObject.saveWatchLater(
                     inputData.getUsername(),
                     inputData.getMovieName(),
                     inputData.getPosterUrl()
@@ -31,9 +39,16 @@ public abstract class MovieInteractor implements MovieInputBoundary {
             moviePresenter.prepareSuccessSaveView(outputData);
 
         } else if (inputData.getAction().equals("review")) {
-            fileUserDataAccessObject.saveUserReview(
-                    inputData.getUsername()
-            );
+            String rID = fileReviewDataAccessObject.getMasterID();
+            Review review = reviewFactory.create(
+                    rID,
+                    inputData.getUsername(),
+                    inputData.getMovieId(),
+                    inputData.getRating(),
+                    inputData.getReviewContent()
+                    );
+            fileReviewDataAccessObject.save(review);
+
 
         }
 
