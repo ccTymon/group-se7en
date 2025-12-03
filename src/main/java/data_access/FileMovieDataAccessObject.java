@@ -47,32 +47,20 @@ public class FileMovieDataAccessObject implements MovieDataAccessInterface {
     }
 
     public void save() {
-        final JSONWriter jsonWriter;
-        try {
-            jsonWriter = new JSONWriter(new FileWriter(movieDB));
-            jsonWriter.array();
+        try (FileWriter fw = new FileWriter(movieDB)) {
+            JSONArray arr = new JSONArray();
 
-            for(String key : movies.keySet()){
-                jsonWriter.key(key);
-
-                JSONArray jsonArray = new JSONArray();
-                List<String> comments = movies.get(key);
-
-                for (Object comment : comments) {
-                    jsonArray.put(comment);
-                }
-
-                jsonWriter.value(jsonArray);
-
-                jsonWriter.endObject();
-
+            for (String movieID : movies.keySet()) {
+                JSONObject obj = new JSONObject();
+                obj.put(movieID, movies.get(movieID));
+                arr.put(obj);
             }
 
-            jsonWriter.endArray();
+            fw.write(arr.toString(4));
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     public void save(Review review) {
