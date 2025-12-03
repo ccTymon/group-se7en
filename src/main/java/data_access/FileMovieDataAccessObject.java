@@ -3,43 +3,44 @@ package data_access;
 import entity.Review;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONWriter;
+import use_case.showmovie.MovieDataAccessInterface;
 
-import java.awt.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-public class FileMovieDataAccessObject {
+public class FileMovieDataAccessObject implements MovieDataAccessInterface {
     private final File movieDB;
-    private final Map<String, List> movies = new HashMap<>();
+    private final Map<String, List<String>> movies = new HashMap<>();
 
-    public FileMovieDataAccessObject(String moviePath) {
+    public FileMovieDataAccessObject(String moviePath){
         movieDB = new File(moviePath);
 
-        if (movieDB.length() == 0){save();}
-
-        else{
-            try{
+        if (movieDB.length() == 0) {
+            save();
+        } else {
+            try {
                 String jsonString = Files.readString(Path.of(moviePath));
-                JSONArray jsonArray  = new JSONArray(jsonString);
+                JSONArray jsonArray = new JSONArray(jsonString);
 
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    Set<String> keys = jsonObject.keySet();
-                    String movieID = keys.toArray()[0].toString();
-                    List commentID = new List();
+                    String movieID = jsonObject.keys().next();
 
-                    for (int j = 0; j < jsonObject.getJSONArray(movieID).length(); j++) {
-                        commentID.add(jsonObject.getJSONArray(movieID).getString(j));
+                    JSONArray arr = jsonObject.getJSONArray(movieID);
+                    List<String> commentIDs = new ArrayList<>();
+
+                    for (int j = 0; j < arr.length(); j++) {
+                        commentIDs.add(arr.getString(j));
                     }
 
-                    movies.put(movieID, commentID);
+                    movies.put(movieID, commentIDs);
                 }
 
             } catch (IOException e) {
@@ -49,52 +50,38 @@ public class FileMovieDataAccessObject {
     }
 
     public void save() {
-        final JSONWriter jsonWriter;
-        try {
-            jsonWriter = new JSONWriter(new FileWriter(movieDB));
-            jsonWriter.array();
+        try (FileWriter fw = new FileWriter(movieDB)) {
+            JSONArray arr = new JSONArray();
 
-            for(String key : movies.keySet()){
-                jsonWriter.key(key);
-
-                JSONArray jsonArray = new JSONArray();
-                List comments = movies.get(key);
-
-                for (int i = 0; i < comments.getItemCount(); i++) {
-                    jsonArray.put(comments.getItem(i));
-                }
-
-                jsonWriter.value(jsonArray);
-
-                jsonWriter.endObject();
-
+            for (String movieID : movies.keySet()) {
+                JSONObject obj = new JSONObject();
+                obj.put(movieID, movies.get(movieID));
+                arr.put(obj);
             }
 
-            jsonWriter.endArray();
+            fw.write(arr.toString(4));
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     public void save(Review review) {
-        if(movies.get(review.getMovieID()) != null) {
-            movies.get(review.getMovieID()).add(review.getrID());
-        }
-        else{
-            List comments = new List();
-            comments.add(review.getrID());
-            movies.put(review.getMovieID(), comments);
-        }
-        this.save();
+        movies.computeIfAbsent(review.getMovieID(), k -> new ArrayList<>());
+        movies.get(review.getMovieID()).add(review.getrID());
+        save();
     }
 
-    public Map<String, List> getMovies() {
+    @Override
+    public List<String> getReviews(String movieId) {
+        return List.of();
+    }
+
+    public Map<String, List<String>> getMovies() {
         return movies;
     }
 
-    public List getCommentIDs(String movieID) {
-        return getMovies().get(movieID);
+    public List<String> getCommentIDs(String movieID) {
+        return movies.get(movieID);
     }
 }
-

@@ -28,85 +28,79 @@ public class FileReviewDataAccessObject implements ReviewDataAccessInterface {
         if (reviewDB.length() == 0) {
             setMasterID("a0");
             saveToFile();
-        }
-        else {
+        } else {
             try {
                 String jsonString = Files.readString(Path.of(primaryDBPath));
                 JSONArray jsonArray = new JSONArray(jsonString);
 
-                for (int i = 0; i < jsonArray.length(); i++){
+                for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject working = jsonArray.getJSONObject(i);
-                    String rID = working.keySet().toArray()[0].toString();
+                    String rID = working.keys().next();
+                    JSONObject data = working.getJSONObject(rID);
+
                     Review product = reviewFactory.create(
                             rID,
-                            working.getString("uID"),
-                            working.getString("movieID"),
-                            working.getInt("rating"),
-                            working.getString("body"));
+                            data.getString("uID"),
+                            data.getString("movieID"),
+                            data.getInt("rating"),
+                            data.getString("body"));
+
                     reviews.put(rID, product);
 
-                    // retrieve numerical value of comment ID and compare to counter
-                    // set counter and masterID to value of greatest present review ID
-                    Integer numVal = Integer.getInteger(product.getrID().substring(1));
-                    if(numVal > counter) {
+                    Integer numVal = Integer.parseInt(rID.substring(1));
+                    if (numVal > counter) {
                         setCounter(numVal);
                         setMasterID(rID);
                     }
-
                 }
-            }
-            catch (IOException ex){
+
+            } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
         }
     }
 
-    // save to file
-    private void saveToFile(){
-        final JSONWriter jsonWriter;
-        try {
-            jsonWriter = new JSONWriter(new FileWriter(reviewDB));
+    private void saveToFile() {
+        try (FileWriter fw = new FileWriter(reviewDB)) {
+            JSONWriter jsonWriter = new JSONWriter(fw);
             jsonWriter.array();
 
-            // adds a new json entry for each review in the database.
             for (Review value : reviews.values()) {
-
                 JSONObject jsonReview = new JSONObject();
-
-                //construct json object based on the review
                 jsonReview.put("uID", value.getuID());
                 jsonReview.put("movieID", value.getMovieID());
                 jsonReview.put("rating", value.getRating());
                 jsonReview.put("body", value.getBody());
 
-                //adds the new json object into the array
                 jsonWriter.object()
                         .key(value.getrID())
                         .value(jsonReview)
                         .endObject();
             }
-            jsonWriter.endArray();
 
+            jsonWriter.endArray();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    // save review to hashmap, then save to file.
     public void save(Review review) {
         reviews.put(review.getrID(), review);
-        this.saveToFile();
+        setMasterID("a" + (counter));
+        saveToFile();
     }
 
     public static void setCounter(Integer counter) {
         FileReviewDataAccessObject.counter = counter;
     }
 
-    public static void setMasterID(String masterID){
+    public static void setMasterID(String masterID) {
         FileReviewDataAccessObject.masterID = masterID;
     }
 
-    public Review getReview(String rID) {return this.reviews.get(rID);}
+    public Review getReview(String rID) {
+        return this.reviews.get(rID);
+    }
 
     public static Integer getCounter() {
         return counter;
@@ -117,7 +111,12 @@ public class FileReviewDataAccessObject implements ReviewDataAccessInterface {
     }
 
     @Override
+    public void setMasterID() {
+        setMasterID();
+    }
+
+    @Override
     public Review retrieve(String rID) {
-        return this.reviews.get(rID);
+        return reviews.get(rID);
     }
 }
