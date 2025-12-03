@@ -46,11 +46,11 @@ public class FileReviewDataAccessObject implements ReviewDataAccessInterface {
                     reviews.put(rID, product);
 
                     // retrieve numerical value of comment ID and compare to counter
-                    // set counter and masterID to value of greatest present review ID
+                    // set counter and masterID to value of greatest present review ID + 1
                     Integer numVal = Integer.getInteger(product.getrID().substring(1));
-                    if(numVal > counter) {
-                        setCounter(numVal);
-                        setMasterID(rID);
+                    if(numVal >= counter) {
+                        setCounter(numVal + 1);
+                        setMasterID("a" + counter);
                     }
 
                 }
@@ -67,7 +67,6 @@ public class FileReviewDataAccessObject implements ReviewDataAccessInterface {
         try {
             jsonWriter = new JSONWriter(new FileWriter(reviewDB));
             jsonWriter.array();
-
             // adds a new json entry for each review in the database.
             for (Review value : reviews.values()) {
 
@@ -84,6 +83,13 @@ public class FileReviewDataAccessObject implements ReviewDataAccessInterface {
                         .key(value.getrID())
                         .value(jsonReview)
                         .endObject();
+
+                //update if necessary the masterID
+                Integer comparator = Integer.getInteger(value.getrID().substring(1));
+                if(comparator > counter){
+                    setCounter(comparator + 1);
+                    setMasterID("a" + counter);
+                }
             }
             jsonWriter.endArray();
 
