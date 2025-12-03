@@ -13,17 +13,15 @@ public abstract class MovieInteractor implements MovieInputBoundary {
     final MovieUserDataAccessInterface fileUserDataAccessObject;
     final ReviewDataAccessInterface fileReviewDataAccessObject;
     private final ReviewFactory reviewFactory;
-    private final LoggedInViewModel loggedInViewModel;
 
     protected MovieInteractor(MovieOutputBoundary movieOutputBoundary,
                               MovieUserDataAccessInterface fileUserDataAccessObject,
                               ReviewDataAccessInterface fileReviewDataAccessObject,
-                              ReviewFactory reviewFactory, LoggedInViewModel loggedInViewModel) {
+                              ReviewFactory reviewFactory) {
         this.moviePresenter = movieOutputBoundary;
         this.fileUserDataAccessObject = fileUserDataAccessObject;
         this.fileReviewDataAccessObject = fileReviewDataAccessObject;
         this.reviewFactory = reviewFactory;
-        this.loggedInViewModel = loggedInViewModel;
     }
 
     @Override
@@ -36,19 +34,16 @@ public abstract class MovieInteractor implements MovieInputBoundary {
                     inputData.getPosterUrl()
             );
             Map<String, String> watchLater = fileUserDataAccessObject.watchLater(inputData.getUsername());
-            LoggedinState loggedInState = loggedInViewModel.getState();
-            loggedInState.setWatchLater(watchLater);
-            loggedInState.setUsername(inputData.getUsername());
-            loggedInViewModel.setState(loggedInState);
-            loggedInViewModel.firePropertyChange();
 
 
-            // Prepare Success View
             MovieOutputData outputData = new MovieOutputData(
                     inputData.getMovieName(),
                     null,
+                    watchLater,
+                    inputData.getUsername(),
                     true
             );
+
             moviePresenter.prepareSuccessSaveView(outputData);
 
         } else if (inputData.getAction().equals("review")) {
@@ -62,6 +57,13 @@ public abstract class MovieInteractor implements MovieInputBoundary {
                     );
             fileReviewDataAccessObject.save(review);
 
+            MovieOutputData outputData = new MovieOutputData(
+                    null,
+                    null,
+                    null,
+                    null,
+                    true
+            );
 
         }
 
