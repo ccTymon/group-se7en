@@ -12,5 +12,7 @@ public interface ReviewDataAccessInterface {
     Review retrieve(String rID);
 
     String getMasterID();
+
+    void setMasterID();
 }
 

@@ -47,7 +47,7 @@ public class AppBuilder {
     private final JPanel cardPanel = new JPanel();
     private final CardLayout cardLayout = new CardLayout();
     final UserFactory userFactory = new UserFactory();
-    final ReviewFactory reviewFactory = new ReviewFactory();
+    static final ReviewFactory reviewFactory = new ReviewFactory();
     final ViewManagerModel viewManagerModel = new ViewManagerModel();
     ViewManager viewManager = new ViewManager(cardPanel, cardLayout, viewManagerModel);
 
@@ -58,10 +58,10 @@ public class AppBuilder {
     final UserDataAccessInterface userDataAccessObject = new UserDataAccessInterface("users.csv", userFactory);
 
     // DAO for local review storage
-    final FileReviewDataAccessObject fileReviewDataAccessObject = new FileReviewDataAccessObject(
+    public static FileReviewDataAccessObject fileReviewDataAccessObject = new FileReviewDataAccessObject(
             "reviews.json", reviewFactory);
 
-    final FileMovieDataAccessObject fileMovieDataAccessObject = new FileMovieDataAccessObject("movieDB.json");
+    public static FileMovieDataAccessObject fileMovieDataAccessObject = new FileMovieDataAccessObject("movieDB.json");
 
     private SignupView signupView;
     private SignupViewModel signupViewModel;
@@ -161,6 +161,7 @@ public class AppBuilder {
                 movieOutputBoundary,
                 userDataAccessObject,
                 fileReviewDataAccessObject,
+                fileMovieDataAccessObject,
                 reviewFactory,
                 loggedInViewModel
         ) {

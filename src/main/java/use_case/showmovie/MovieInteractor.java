@@ -12,16 +12,18 @@ public abstract class MovieInteractor implements MovieInputBoundary {
     final MovieOutputBoundary moviePresenter;
     final MovieUserDataAccessInterface fileUserDataAccessObject;
     final ReviewDataAccessInterface fileReviewDataAccessObject;
+    final MovieDataAccessInterface fileMovieDataAccessObject;
     private final ReviewFactory reviewFactory;
     private final LoggedInViewModel loggedInViewModel;
 
     protected MovieInteractor(MovieOutputBoundary movieOutputBoundary,
                               MovieUserDataAccessInterface fileUserDataAccessObject,
-                              ReviewDataAccessInterface fileReviewDataAccessObject,
+                              ReviewDataAccessInterface fileReviewDataAccessObject, MovieDataAccessInterface fileMovieDataAccessObject,
                               ReviewFactory reviewFactory, LoggedInViewModel loggedInViewModel) {
         this.moviePresenter = movieOutputBoundary;
         this.fileUserDataAccessObject = fileUserDataAccessObject;
         this.fileReviewDataAccessObject = fileReviewDataAccessObject;
+        this.fileMovieDataAccessObject = fileMovieDataAccessObject;
         this.reviewFactory = reviewFactory;
         this.loggedInViewModel = loggedInViewModel;
     }
@@ -53,6 +55,7 @@ public abstract class MovieInteractor implements MovieInputBoundary {
 
         } else if (inputData.getAction().equals("review")) {
             String rID = fileReviewDataAccessObject.getMasterID();
+            // fileReviewDataAccessObject.setMasterID();
             Review review = reviewFactory.create(
                     rID,
                     inputData.getUsername(),
@@ -61,7 +64,7 @@ public abstract class MovieInteractor implements MovieInputBoundary {
                     inputData.getReviewContent()
                     );
             fileReviewDataAccessObject.save(review);
-
+            fileMovieDataAccessObject.save(review);
 
         }
 

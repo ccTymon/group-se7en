@@ -1,6 +1,10 @@
 package view;
 
+import app.AppBuilder;
+import data_access.FileMovieDataAccessObject;
+import data_access.FileReviewDataAccessObject;
 import entity.Review;
+import entity.ReviewFactory;
 import interface_adapter.loggedin.LoggedInViewModel;
 import interface_adapter.loggedin.LoggedinState;
 import interface_adapter.showmovie.MovieController;
@@ -141,8 +145,19 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
         this.add(backButton);
 
     }
-    public void logReview(String username, Integer rating, String review) throws IOException {
+    public void logReview(String username, String movieID, Integer rating, String review) throws IOException {
 
+        //  USE INTERFACE HERE
+        FileReviewDataAccessObject.setCounter(FileReviewDataAccessObject.getCounter()+1);
+        ReviewFactory factory = new ReviewFactory();
+        String newID = "a" + FileReviewDataAccessObject.getCounter();
+        Review currReview = factory.create(newID, username, movieID, rating, review);
+
+        // movieController.leaveReview(username, movieID, rating, review);
+        AppBuilder.fileReviewDataAccessObject.save(currReview);
+        AppBuilder.fileMovieDataAccessObject.save(currReview);
+
+        /*
         if (currentMovieState == null) return;
 
         String movieID = currentMovieState.getMovieId();
@@ -188,11 +203,14 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
         try (FileWriter fileWriter = new FileWriter(path)) {
             fileWriter.write(reviewsArray.toString(4)); // Indentation level for pretty-printing
         }
+
+         */
     }
 
 
 
     public void actionPerformed(ActionEvent e) {
+        LoggedinState currentState = loggedInViewModel.getState();
         if  (e.getSource() == backButton) {
             movieController.goBack();
 
@@ -207,20 +225,19 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
 
             // Fetchable:  currentState.getUsername(), reviewText, ratingNum,
             Integer ratingNum = (Integer) ratingDropdown.getSelectedItem();
-            LoggedinState currentState = loggedInViewModel.getState();
+
             reviewsDisplay.append(currentState.getUsername() + ": (" + ratingNum + "/10) " + reviewText + "\n");
 
             reviewField.setText("");
 
             try {
-                logReview(currentState.getUsername(), ratingNum, reviewText);
+                logReview(currentState.getUsername(), currentMovieState.getMovieId(), ratingNum, reviewText);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         }
 
         if (e.getSource() == saveButton) {
-            LoggedinState currentState = loggedInViewModel.getState();
             String username = currentState.getUsername();
             // loggedinState.setNext_watch(next_watch);
             // loggedinState.setNext_watch_poster(next_watch_poster);
@@ -247,15 +264,30 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
-
+        LoggedinState currentState = loggedInViewModel.getState();
         final MovieState movieState = (MovieState) evt.getNewValue();
         currentMovieState = movieState;
         movieName.setText("Movie Name:  " + movieState.getMovieName());
         rating.setText("Rating:  \n" + movieState.getMovieRate());
         Plot.setText("Plot:\n" +  movieState.getMoviePlot());
         next_watch = movieState.getMovieName();
+        reviewsDisplay.setText("");
 
-        // START SAMPLE COMMENT SECTION
+        // USE INTERFACE HERE?
+        List<String> currComments = AppBuilder.fileMovieDataAccessObject.getCommentIDs(movieState.getMovieId());
+
+        if (currComments != null) {
+            for (String commentID : currComments) {
+                Review loadedReview = AppBuilder.fileReviewDataAccessObject.retrieve(commentID);
+                String username = loadedReview.getuID();
+                Integer rating = loadedReview.getRating();
+                String reviewText = loadedReview.getBody();
+                reviewsDisplay.append(username + ": (" + rating + "/10) " + reviewText + "\n");
+            }
+        }
+
+
+        /*
         String path = "reviewDB.json";
         JSONArray reviewsArray;
 
@@ -304,6 +336,8 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
 
             reviewsDisplay.append(username + ": (" + rating + "/10) " + comment + "\n");
         }
+
+         */
         // END
 
         try {
