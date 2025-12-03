@@ -12,15 +12,18 @@ public abstract class MovieInteractor implements MovieInputBoundary {
     final MovieOutputBoundary moviePresenter;
     final MovieUserDataAccessInterface fileUserDataAccessObject;
     final ReviewDataAccessInterface fileReviewDataAccessObject;
+    final MovieDataAccessInterface fileMovieDataAccessObject;
     private final ReviewFactory reviewFactory;
 
     protected MovieInteractor(MovieOutputBoundary movieOutputBoundary,
                               MovieUserDataAccessInterface fileUserDataAccessObject,
                               ReviewDataAccessInterface fileReviewDataAccessObject,
+                              MovieDataAccessInterface fileMovieDataAccessObject,
                               ReviewFactory reviewFactory) {
         this.moviePresenter = movieOutputBoundary;
         this.fileUserDataAccessObject = fileUserDataAccessObject;
         this.fileReviewDataAccessObject = fileReviewDataAccessObject;
+        this.fileMovieDataAccessObject = fileMovieDataAccessObject;
         this.reviewFactory = reviewFactory;
     }
 
@@ -56,6 +59,7 @@ public abstract class MovieInteractor implements MovieInputBoundary {
                     inputData.getReviewContent()
                     );
             fileReviewDataAccessObject.save(review);
+            fileMovieDataAccessObject.save(review);
 
             MovieOutputData outputData = new MovieOutputData(
                     null,

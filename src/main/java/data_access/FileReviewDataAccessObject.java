@@ -20,13 +20,13 @@ public class FileReviewDataAccessObject implements ReviewDataAccessInterface {
     private final File reviewDB;
     private final Map<String, Review> reviews = new HashMap<>();
     private static String masterID = null;
-    private static Integer counter = 0;
+    private static Integer counter = 1;
 
     public FileReviewDataAccessObject(String primaryDBPath, ReviewFactory reviewFactory) {
         reviewDB = new File(primaryDBPath);
 
         if (reviewDB.length() == 0) {
-            setMasterID("a0");
+            setMasterID("a1");
             saveToFile();
         }
         else {
@@ -39,18 +39,18 @@ public class FileReviewDataAccessObject implements ReviewDataAccessInterface {
                     String rID = working.keySet().toArray()[0].toString();
                     Review product = reviewFactory.create(
                             rID,
-                            working.getString("uID"),
-                            working.getString("movieID"),
-                            working.getInt("rating"),
-                            working.getString("body"));
+                            working.getJSONObject(rID).getString("uID"),
+                            working.getJSONObject(rID).getString("movieID"),
+                            working.getJSONObject(rID).getInt("rating"),
+                            working.getJSONObject(rID).getString("body"));
                     reviews.put(rID, product);
 
                     // retrieve numerical value of comment ID and compare to counter
                     // set counter and masterID to value of greatest present review ID + 1
-                    Integer numVal = Integer.getInteger(product.getrID().substring(1));
-                    if(numVal >= counter) {
-                        setCounter(numVal + 1);
-                        setMasterID("a" + counter);
+                    Integer numVal = Integer.parseInt(rID.substring(1));
+                    if (numVal > counter) {
+                        setCounter(numVal);
+                        setMasterID(rID);
                     }
 
                 }
@@ -61,36 +61,24 @@ public class FileReviewDataAccessObject implements ReviewDataAccessInterface {
         }
     }
 
-    // save to file
-    private void saveToFile(){
-        final JSONWriter jsonWriter;
-        try {
-            jsonWriter = new JSONWriter(new FileWriter(reviewDB));
+    private void saveToFile() {
+        try (FileWriter fw = new FileWriter(reviewDB)) {
+            JSONWriter jsonWriter = new JSONWriter(fw);
             jsonWriter.array();
-            // adds a new json entry for each review in the database.
+
             for (Review value : reviews.values()) {
-
                 JSONObject jsonReview = new JSONObject();
-
-                //construct json object based on the review
                 jsonReview.put("uID", value.getuID());
                 jsonReview.put("movieID", value.getMovieID());
                 jsonReview.put("rating", value.getRating());
                 jsonReview.put("body", value.getBody());
 
-                //adds the new json object into the array
                 jsonWriter.object()
                         .key(value.getrID())
                         .value(jsonReview)
                         .endObject();
-
-                //update if necessary the masterID
-                Integer comparator = Integer.getInteger(value.getrID().substring(1));
-                if(comparator > counter){
-                    setCounter(comparator + 1);
-                    setMasterID("a" + counter);
-                }
             }
+
             jsonWriter.endArray();
 
         } catch (IOException e) {

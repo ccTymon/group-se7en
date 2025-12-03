@@ -1,5 +1,6 @@
 package view;
 
+import app.AppBuilder;
 import entity.Review;
 import interface_adapter.loggedin.LoggedInViewModel;
 import interface_adapter.loggedin.LoggedinState;
@@ -212,11 +213,12 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
 
             reviewField.setText("");
 
-            try {
-                logReview(currentState.getUsername(), ratingNum, reviewText);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+            movieController.leaveReview(
+                    currentState.getUsername(),
+                    currentMovieState.getMovieId(),
+                    ratingNum,
+                    reviewText
+            );
         }
 
         if (e.getSource() == saveButton) {
@@ -255,56 +257,19 @@ public class MovieView extends JPanel implements ActionListener , PropertyChange
         Plot.setText("Plot:\n" +  movieState.getMoviePlot());
         next_watch = movieState.getMovieName();
 
-        // START SAMPLE COMMENT SECTION
-        String path = "reviewDB.json";
-        JSONArray reviewsArray;
+        // USE INTERFACE HERE?
+        List<String> currComments = AppBuilder.fileMovieDataAccessObject.getComments(movieState.getMovieId());
 
-        if (Files.exists(Paths.get(path))) {
-            String content = null;
-            try {
-                content = new String(Files.readAllBytes(Paths.get(path)));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            reviewsArray = new JSONArray(content);
-        } else {
-            reviewsArray = new JSONArray(); // file missing → empty database
-        }
-        List<List<Object>> reviewList = new ArrayList<>();
-
-        for (int i = 0; i < reviewsArray.length(); i++) {
-            JSONObject movieObj = reviewsArray.getJSONObject(i);
-
-
-
-            if (movieObj.getString("movieId").equals(movieState.getMovieId())) {
-                JSONArray reviewArray = movieObj.getJSONArray("reviews");
-
-                for (int j = 0; j < reviewArray.length(); j++) {
-                    JSONObject r = reviewArray.getJSONObject(j);
-
-                    List<Object> entry = new ArrayList<>();
-                    entry.add(r.getString("username"));
-                    entry.add(r.getInt("rating"));
-                    entry.add(r.getString("review"));
-
-                    reviewList.add(entry);
-                }
-
-                break;
+        if (currComments != null) {
+            for (String commentID : currComments) {
+                Review loadedReview = AppBuilder.fileReviewDataAccessObject.retrieve(commentID);
+                String username = loadedReview.getuID();
+                Integer rating = loadedReview.getRating();
+                String reviewText = loadedReview.getBody();
+                reviewsDisplay.append(username + ": (" + rating + "/10) " + reviewText + "\n");
             }
         }
 
-
-        reviewsDisplay.setText("");
-        for (List<Object> entry : reviewList) {
-            String username = (String) entry.get(0);
-            int rating = (int) entry.get(1);
-            String comment = (String) entry.get(2);
-
-            reviewsDisplay.append(username + ": (" + rating + "/10) " + comment + "\n");
-        }
-        // END
 
         try {
             URL imageUrl = new URL(movieState.getMovieIcon());
