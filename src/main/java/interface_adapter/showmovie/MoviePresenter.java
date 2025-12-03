@@ -2,25 +2,30 @@ package interface_adapter.showmovie;
 
 import interface_adapter.ViewManagerModel;
 import interface_adapter.loggedin.LoggedInViewModel;
+import interface_adapter.loggedin.LoggedinState;
 import use_case.showmovie.MovieOutputBoundary;
 import use_case.showmovie.MovieOutputData;
 
+import java.util.Map;
+
 public class MoviePresenter implements MovieOutputBoundary {
     private final MovieSearchModel movieSearchModel;
+    private final LoggedInViewModel loggedInViewModel;
 
-    public MoviePresenter(ViewManagerModel viewManagerModel, MovieSearchModel movieSearchModel) {
-
+    public MoviePresenter(ViewManagerModel viewManagerModel, MovieSearchModel movieSearchModel, LoggedInViewModel loggedInViewModel) {
+        this.loggedInViewModel = loggedInViewModel;
         this.movieSearchModel = movieSearchModel;
     }
 
     @Override
     public void prepareSuccessSaveView(MovieOutputData outputData) {
         // Update LoggedIn State (Watch Later)
-        //LoggedinState state = loggedInViewModel.getState();
-        // state.setNext_watch(outputData.getMovieName());
-
-        //loggedInViewModel.setState(state);
-        //loggedInViewModel.firePropertyChange();
+        Map<String, String> watchLater = outputData.getWatchLaterMap();
+        LoggedinState loggedInState = loggedInViewModel.getState();
+        loggedInState.setWatchLater(watchLater);
+        loggedInState.setUsername(outputData.getUsername());
+        loggedInViewModel.setState(loggedInState);
+        loggedInViewModel.firePropertyChange();
 
     }
 
@@ -36,5 +41,10 @@ public class MoviePresenter implements MovieOutputBoundary {
 
         movieSearchModel.setState(state);
         movieSearchModel.firePropertyChange();
+    }
+
+    @Override
+    public void prepareSuccessView(MovieOutputData movie) {
+
     }
 }

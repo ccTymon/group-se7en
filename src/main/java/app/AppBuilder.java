@@ -153,7 +153,7 @@ public class AppBuilder {
     }
 
     public AppBuilder addMovieUseCase() {
-        final MovieOutputBoundary movieOutputBoundary = new MoviePresenter(viewManagerModel, movieSearchModel);
+        final MovieOutputBoundary movieOutputBoundary = new MoviePresenter(viewManagerModel, movieSearchModel, loggedInViewModel);
 
         // 2. Create the Interactor
         // We inject the DAOs (for saving data) and the Presenter (for outputting data).
@@ -161,13 +161,9 @@ public class AppBuilder {
                 movieOutputBoundary,
                 userDataAccessObject,
                 fileReviewDataAccessObject,
-                reviewFactory,
-                loggedInViewModel
+                reviewFactory
         ) {
-            @Override
-            public void executeSave(MovieInputData movieInputData) {
 
-            }
         };
         MovieController movieController = new MovieController(
                 viewManagerModel,
